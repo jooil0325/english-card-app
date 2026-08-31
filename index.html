@@ -159,9 +159,9 @@
 
     <!-- App Main Container -->
     <main class="flex-grow w-full max-w-3xl mx-auto px-4 md:px-6 pt-3 app-bottom-space flex flex-col gap-3">
-        <!-- Slim Daily Goal Progress Bar (Integrated) -->
-        <div id="goalProgressBarContainer" class="w-full bg-surface-container-low/70 rounded-full px-3 py-1.5 border border-outline-variant/20 flex items-center justify-between gap-3 text-xs">
-            <span id="goalTitleStr" class="font-semibold text-on-surface-variant text-[11px] flex items-center gap-1 truncate">
+        <!-- Slim Daily Goal Progress Bar (Interactive Click to Open Goal Modal) -->
+        <div id="goalProgressBarContainer" class="w-full bg-surface-container-low/80 hover:bg-surface-container rounded-full px-3.5 py-1.5 border border-outline-variant/25 flex items-center justify-between gap-3 text-xs cursor-pointer transition-all active:scale-[0.99] shadow-2xs group" title="클릭하여 학습 목표 및 스마트 페이스메이커 설정">
+            <span id="goalTitleStr" class="font-semibold text-on-surface-variant text-[11px] flex items-center gap-1 truncate group-hover:text-primary transition-colors">
                 <span class="material-symbols-outlined text-[14px] text-primary">flag</span>
                 목표: 하루 10개
             </span>
@@ -1201,6 +1201,6 @@
     </script>
 
     <!-- Application Script -->
-    <script src="app.js?v=20260831_v27"></script>
+    <script src="app.js?v=20260831_v28"></script>
 </body>
 </html>

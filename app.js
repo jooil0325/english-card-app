@@ -232,6 +232,7 @@ class EngCardApp {
         this.dueBadge = document.getElementById('dueBadge');
         this.dueCountEl = document.getElementById('dueCount');
         this.btnGoalModal = document.getElementById('btnGoalModal');
+        this.goalProgressBarContainer = document.getElementById('goalProgressBarContainer');
         this.goalBadgeText = document.getElementById('goalBadgeText');
         this.goalTitleStr = document.getElementById('goalTitleStr');
         this.goalPercentStr = document.getElementById('goalPercentStr');
@@ -695,6 +696,7 @@ class EngCardApp {
 
         // Smart Pacemaker (Goal Modal) Controls
         this.btnGoalModal?.addEventListener('click', () => this.openGoalModal());
+        this.goalProgressBarContainer?.addEventListener('click', () => this.openGoalModal());
         this.btnCloseGoalModal?.addEventListener('click', () => this.closeGoalModal());
         this.goalTargetDeckSelect?.addEventListener('change', () => this.updateGoalPaceSimulator());
         this.goalTypeSelect?.addEventListener('change', (e) => {
@@ -2705,29 +2707,51 @@ class EngCardApp {
         this.updateGoalProgress();
         this.initDailySession(true); // Re-initialize session with new cap
         this.renderAll();
-        alert(`[${deckName}] 학습 목표와 일일 복습 캡(${this.goal.reviewCap > 0 ? this.goal.reviewCap + '개' : '무제한'})이 새로 설정되었습니다!`);
+        this.showToast(`🎯 [${deckName}] 학습 목표와 일일 복습 캡(${this.goal.reviewCap > 0 ? this.goal.reviewCap + '개' : '무제한'})이 적용되었습니다!`, 'success');
     }
 
     updateGoalProgress() {
-        const activeSentences = this.getActiveSentences();
-        const memorized = activeSentences.filter(s => s.memorized).length;
-        let target = 10;
-
-        if (this.goal.type === 'daily') {
-            target = this.goal.dailyCount;
-            this.goalBadgeText.textContent = `목표: 하루 ${target}개`;
-            this.goalTitleStr.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> 일일 목표: ${target}개 외우기`;
-        } else {
-            target = Math.ceil(this.goal.totalCount / (this.goal.targetDays || 1));
-            this.goalBadgeText.textContent = `목표: ${this.goal.targetDays}일간 ${this.goal.totalCount}개`;
-            this.goalTitleStr.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> 총 ${this.goal.totalCount}개 / ${this.goal.targetDays}일 목표 (일 ${target}개)`;
+        if (!this.goal) {
+            this.goal = {
+                type: 'daily',
+                dailyCount: 10,
+                totalCount: 100,
+                targetDays: 20,
+                targetDeckId: 'all',
+                reviewCap: 20,
+                catchUpMode: true,
+                enableNotifications: true
+            };
         }
 
-        const todayStudied = activeSentences.filter(s => s.lastStudiedAt === getTodayString()).length;
+        const targetDeckId = this.goal.targetDeckId || 'all';
+        const targetSentences = (targetDeckId === 'all' || !targetDeckId)
+            ? this.sentences
+            : this.sentences.filter(s => s.deckId === targetDeckId);
+
+        let target = 10;
+        if (this.goal.type === 'daily') {
+            target = Math.max(1, parseInt(this.goal.dailyCount || '10', 10));
+            if (this.goalBadgeText) this.goalBadgeText.textContent = `목표: 하루 ${target}개`;
+            if (this.goalTitleStr) this.goalTitleStr.innerHTML = `<span class="material-symbols-outlined text-[14px] text-primary">flag</span> 일일 목표: 하루 ${target}개`;
+        } else {
+            const totalCount = parseInt(this.goal.totalCount || '100', 10);
+            const targetDays = Math.max(1, parseInt(this.goal.targetDays || '20', 10));
+            target = Math.ceil(totalCount / targetDays);
+            if (this.goalBadgeText) this.goalBadgeText.textContent = `목표: ${targetDays}일간 ${totalCount}개`;
+            if (this.goalTitleStr) this.goalTitleStr.innerHTML = `<span class="material-symbols-outlined text-[14px] text-primary">flag</span> ${targetDays}일 완독 (일 ${target}개)`;
+        }
+
+        const todayStr = getTodayString();
+        const todayStudied = targetSentences.filter(s => s.lastStudiedAt === todayStr).length;
         const pct = Math.min(Math.round((todayStudied / target) * 100), 100);
 
-        this.goalPercentStr.textContent = `${pct}% 달성 (${todayStudied}/${target}개)`;
-        this.goalProgressBar.style.width = `${pct}%`;
+        if (this.goalPercentStr) {
+            this.goalPercentStr.textContent = `${pct}% (${todayStudied}/${target}개)`;
+        }
+        if (this.goalProgressBar) {
+            this.goalProgressBar.style.width = `${pct}%`;
+        }
     }
 
     updateHeaderStats() {
