@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- TUK Master Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=20260831_v6">
+    <link rel="stylesheet" href="style.css?v=20260831_v7">
 
     <!-- Tailwind CSS Core -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1052,10 +1052,9 @@
         </div>
     </div>
 
-    <!-- 3. Session Complete Celebration Modal (Bottom Sheet) -->
-    <div id="sessionCompleteModal" class="modal hidden bottom-sheet-overlay">
-        <div class="bottom-sheet-container p-6 flex flex-col items-center text-center gap-4">
-            <div class="bottom-sheet-handle"></div>
+    <!-- 3. Session Complete Celebration Modal (Centered Dialog) -->
+    <div id="sessionCompleteModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
+        <div class="bg-surface border border-outline-variant/30 rounded-3xl p-6 shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto flex flex-col items-center text-center gap-4 animate-fade-in-up">
             <div class="w-16 h-16 rounded-full bg-secondary-container text-secondary flex items-center justify-center text-3xl shadow-sm">
                 🎉
             </div>
@@ -1072,10 +1071,9 @@
         </div>
     </div>
 
-    <!-- 4. Deck Management Modal (Bottom Sheet) -->
-    <div id="deckModal" class="modal hidden bottom-sheet-overlay">
-        <div class="bottom-sheet-container p-6 flex flex-col gap-4">
-            <div class="bottom-sheet-handle"></div>
+    <!-- 4. Deck Management Modal (Centered Dialog) -->
+    <div id="deckModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
+        <div class="bg-surface border border-outline-variant/30 rounded-3xl p-6 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col gap-4 animate-fade-in-up">
             <div class="flex justify-between items-center border-b border-surface-container-high pb-2">
                 <h3 class="font-extrabold text-lg text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">folder</span> 단어장(덱) 관리
@@ -1096,10 +1094,9 @@
         </div>
     </div>
 
-    <!-- 5. Move Sentences to Deck Modal (Bottom Sheet) -->
-    <div id="moveDeckModal" class="modal hidden bottom-sheet-overlay">
-        <div class="bottom-sheet-container p-6 flex flex-col gap-4">
-            <div class="bottom-sheet-handle"></div>
+    <!-- 5. Move Sentences to Deck Modal (Centered Dialog) -->
+    <div id="moveDeckModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
+        <div class="bg-surface border border-outline-variant/30 rounded-3xl p-6 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col gap-4 animate-fade-in-up">
             <div class="flex justify-between items-center border-b border-surface-container-high pb-2">
                 <h3 class="font-extrabold text-base text-on-surface flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-primary">drive_file_move</span> 문장 이동할 덱 선택
@@ -1114,10 +1111,9 @@
         </div>
     </div>
 
-    <!-- 6. Goal & Smart Pacemaker Modal (Bottom Sheet) -->
-    <div id="goalModal" class="modal hidden bottom-sheet-overlay">
-        <div class="bottom-sheet-container p-6 flex flex-col gap-4">
-            <div class="bottom-sheet-handle"></div>
+    <!-- 6. Goal & Smart Pacemaker Modal (Centered Dialog) -->
+    <div id="goalModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
+        <div class="bg-surface border border-outline-variant/30 rounded-3xl p-6 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col gap-4 animate-fade-in-up">
             <div class="flex justify-between items-center border-b border-surface-container-high pb-2">
                 <h3 class="font-extrabold text-lg text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">flag_circle</span> 스마트 페이스메이커

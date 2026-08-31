@@ -383,7 +383,12 @@ body {
 
 /* Modals */
 .modal:not(.hidden) {
-    display: flex;
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 100 !important;
 }
 
 /* Pulse badge animation */
