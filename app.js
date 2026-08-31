@@ -377,6 +377,10 @@ class EngCardApp {
 
         this.quizWriteArea = document.getElementById('quizWriteArea');
         this.writeAnswerInput = document.getElementById('writeAnswerInput');
+        this.btnQuizVoiceMic = document.getElementById('btnQuizVoiceMic');
+        this.quizVoiceMicIcon = document.getElementById('quizVoiceMicIcon');
+        this.quizVoiceStatus = document.getElementById('quizVoiceStatus');
+        this.btnStopQuizVoice = document.getElementById('btnStopQuizVoice');
 
         this.quizFeedback = document.getElementById('quizFeedback');
         this.btnCheckQuiz = document.getElementById('btnCheckQuiz');
@@ -690,6 +694,8 @@ class EngCardApp {
         this.btnExitQuiz?.addEventListener('click', () => this.exitQuiz());
         this.btnCheckQuiz?.addEventListener('click', () => this.checkQuizAnswer());
         this.btnNextQuiz?.addEventListener('click', () => this.nextQuizQuestion());
+        this.btnQuizVoiceMic?.addEventListener('click', () => this.toggleQuizVoiceInput());
+        this.btnStopQuizVoice?.addEventListener('click', () => this.stopQuizVoiceInput());
         document.querySelectorAll('input[name="quizScope"]').forEach(radio => {
             radio.addEventListener('change', () => this.updateQuizSetupUI());
         });
@@ -2910,12 +2916,14 @@ class EngCardApp {
     }
 
     exitQuiz() {
+        this.stopQuizVoiceInput();
         this.quizSetup.classList.remove('hidden');
         this.quizContainer.classList.add('hidden');
         this.quizState.active = false;
     }
 
     renderQuizQuestion() {
+        this.stopQuizVoiceInput();
         const q = this.quizState.questions[this.quizState.currentIndex];
         this.quizScoreBadge.textContent = `문제 ${this.quizState.currentIndex + 1} / ${this.quizState.questions.length}`;
         
@@ -4684,6 +4692,83 @@ class EngCardApp {
         }
         if (this.smartVoiceStatus) {
             this.smartVoiceStatus.classList.add('hidden');
+        }
+    }
+
+    /* Quiz Voice STT Input */
+    toggleQuizVoiceInput() {
+        if (this.isQuizVoiceListening) {
+            this.stopQuizVoiceInput();
+        } else {
+            this.startQuizVoiceInput();
+        }
+    }
+
+    startQuizVoiceInput() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            this.showToast('현재 브라우저에서는 음성 인식을 지원하지 않습니다. Chrome/Edge를 권장합니다.', 'error');
+            return;
+        }
+
+        try {
+            this.quizVoiceRecognition = new SpeechRecognition();
+            this.quizVoiceRecognition.lang = 'en-US';
+            this.quizVoiceRecognition.continuous = false;
+            this.quizVoiceRecognition.interimResults = true;
+            this.quizVoiceRecognition.maxAlternatives = 1;
+
+            this.quizVoiceRecognition.onstart = () => {
+                this.isQuizVoiceListening = true;
+                this.triggerHaptic('medium');
+                if (this.btnQuizVoiceMic) {
+                    this.btnQuizVoiceMic.classList.add('bg-error', 'text-white', 'animate-pulse');
+                    this.btnQuizVoiceMic.classList.remove('bg-primary/10', 'text-primary');
+                }
+                if (this.quizVoiceStatus) {
+                    this.quizVoiceStatus.classList.remove('hidden');
+                }
+            };
+
+            this.quizVoiceRecognition.onresult = (event) => {
+                const transcript = Array.from(event.results)
+                    .map(r => r[0].transcript)
+                    .join('');
+                if (this.writeAnswerInput) {
+                    this.writeAnswerInput.value = transcript;
+                }
+            };
+
+            this.quizVoiceRecognition.onerror = (err) => {
+                console.warn('Quiz Voice STT error:', err);
+                this.stopQuizVoiceInput();
+                if (err.error !== 'no-speech') {
+                    this.showToast('음성 인식 오류: ' + err.error, 'warning');
+                }
+            };
+
+            this.quizVoiceRecognition.onend = () => {
+                this.stopQuizVoiceInput();
+            };
+
+            this.quizVoiceRecognition.start();
+        } catch (e) {
+            console.error('Failed to start quiz voice recognition:', e);
+            this.stopQuizVoiceInput();
+        }
+    }
+
+    stopQuizVoiceInput() {
+        this.isQuizVoiceListening = false;
+        if (this.quizVoiceRecognition) {
+            try { this.quizVoiceRecognition.stop(); } catch (e) {}
+        }
+        if (this.btnQuizVoiceMic) {
+            this.btnQuizVoiceMic.classList.remove('bg-error', 'text-white', 'animate-pulse');
+            this.btnQuizVoiceMic.classList.add('bg-primary/10', 'text-primary');
+        }
+        if (this.quizVoiceStatus) {
+            this.quizVoiceStatus.classList.add('hidden');
         }
     }
 

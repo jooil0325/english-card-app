@@ -643,9 +643,23 @@
                     <input type="text" id="blankAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-3.5 text-center text-lg font-bold text-on-surface focus:ring-2 focus:ring-primary" placeholder="빈칸에 들어갈 단어 입력..." autocomplete="off">
                 </div>
 
-                <!-- Area for Write Quiz -->
-                <div id="quizWriteArea" class="w-full hidden flex-col gap-3">
-                    <textarea id="writeAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-4 text-base font-semibold text-on-surface focus:ring-2 focus:ring-primary resize-none" placeholder="영어로 전체 문장을 작성하세요..." rows="3"></textarea>
+                <!-- Area for Write Quiz (with Voice STT Mic) -->
+                <div id="quizWriteArea" class="w-full hidden flex-col gap-2.5">
+                    <div class="relative w-full">
+                        <textarea id="writeAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-4 pr-12 text-base font-semibold text-on-surface focus:ring-2 focus:ring-primary focus:bg-white resize-none transition-all" placeholder="영어로 문장을 직접 작성하거나 마이크로 말씀해 보세요..." rows="3"></textarea>
+                        <!-- Voice Mic Button in top right of textarea -->
+                        <button id="btnQuizVoiceMic" class="absolute right-3 top-3 p-2 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all active:scale-90 cursor-pointer shadow-2xs" title="음성으로 영어 문장 말하기">
+                            <span class="material-symbols-outlined text-[20px]" id="quizVoiceMicIcon">mic</span>
+                        </button>
+                    </div>
+                    <!-- Live Voice Listening Status for Quiz -->
+                    <div id="quizVoiceStatus" class="hidden flex items-center justify-between p-2.5 bg-error-container/20 border border-error/30 rounded-2xl text-xs text-error font-semibold animate-fade-in-up">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+                            <span>영어로 말씀해 주세요... 듣고 있습니다.</span>
+                        </div>
+                        <button id="btnStopQuizVoice" class="px-2.5 py-1 rounded-xl bg-error text-white text-[11px] font-bold hover:opacity-90 active:scale-95 cursor-pointer">완료</button>
+                    </div>
                 </div>
 
                 <!-- Feedback Banner -->
@@ -1171,6 +1185,6 @@
     </script>
 
     <!-- Application Script -->
-    <script src="app.js?v=20260831_v30"></script>
+    <script src="app.js?v=20260831_v31"></script>
 </body>
 </html>
