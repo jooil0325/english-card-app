@@ -1,0 +1,221 @@
+0.11s: [음악]
+0.88s: 제 이름은 나입니다 2살이에요 my
+3.80s: name is an I'm 22 my
+6.60s: name is an I'm 22 my
+9.60s: name is anna 22 my
+12.40s: name is
+14.00s: an2 제가 좋아하는 색은
+16.00s: 파란색입니다
+17.16s: my is blue my is BL
+21.36s: my is BL
+24.28s: my 저는 미국인입니다 시카고
+26.96s: 출신이에요
+39.56s: 제가 좋아하는 운동은 테니스와
+51.32s: 수영입니다 학생이에요
+60.04s: 있습니다 I'm interested
+61.76s: in art I'm
+63.32s: interested in art
+64.84s: I'm interested in
+65.96s: art I'm interested
+67.72s: in art 아버지는 의사이고
+70.08s: 어머니는 기자이다 my father
+72.60s: is a doctor and my
+74.12s: mother is a
+74.72s: journalist my father
+76.28s: is a doctor and my
+77.32s: mother is a
+78.16s: journalist my father
+79.72s: is a doctor and my
+81.28s: mother is a
+81.92s: journalist my father
+83.40s: is a doctor and my
+84.48s: mother is journalist
+86.00s: 저는 정치에 관심이 없어요 I'm
+88.36s: not interested in
+89.20s: politics
+97.00s: 피곤하지만 배고프지
+108.36s: 않아요 저는 32살입니다 제 여동생은
+111.48s: 2살이에요
+120.48s: 32 years old my
+122.04s: sister is
+123.16s: 29 32 years old my
+125.68s: sister is9 알렉스는 걔를
+127.76s: 무서워합니다
+129.08s: scared of dogs Al
+132.04s: scared of
+133.12s: dogs scared of
+135.40s: dogs scars 제인은 호주
+138.40s: 사람이에요 그녀는 미국인이
+140.48s: 아닙니다
+142.20s: austan
+144.08s: amane austan
+150.41s: [음악]
+154.08s: 이 꽃들은 예쁘고 비싸지 않아요
+156.96s: flers are and
+158.96s: expensive these
+160.20s: flowers
+162.24s: are flowers are Nice
+164.28s: and
+168.00s: expensive 시에요 또 늦었군요
+175.28s: 10 10
+177.92s: O 10 o you're late
+180.28s: again 춥네요 창문 닫아도 될까요
+183.04s: I'm cold can I close
+185.00s: the window I'm cold
+187.00s: can I close the
+187.64s: window I'm cold can
+190.12s: I close the window
+191.56s: I'm cold can I close
+193.04s: the window 제임스는 선생님이
+195.04s: 아닙니다 그는 학생이에요 James
+197.28s: isn't a teacher he
+198.80s: is a student James
+200.48s: isn't a teacher he
+201.48s: is a student James
+203.00s: isn't a teacher he a
+204.84s: student James isn't
+206.44s: a teacher a student
+208.12s: 애나와 저는 좋은 친구예요 anna
+210.48s: and I are good
+211.12s: friends anna and I
+212.72s: are good friends
+213.96s: anna and I are good
+215.16s: friends anna and I
+216.76s: are good friends 파리는
+218.52s: 아름다운 도시입니다 Paris is
+220.64s: a beautiful City
+222.28s: Paris is a beautiful
+223.48s: City Paris is a
+225.16s: beautiful City Paris
+227.00s: is a beautiful City
+228.48s: 우리 집은 시내 근처에 있어요 our
+230.72s: house is near
+231.60s: downtown our house
+233.08s: is near downtown our
+234.84s: house is near
+235.72s: downtown our house
+237.20s: is near downtown 보은
+238.96s: 여기 없어요 그는 직장에 있어요
+241.16s: Tom isn't here He is
+242.68s: at work Tom isn't
+244.32s: here He is at work
+246.24s: Tom isn't here He is
+247.84s: at work Tom isn't
+249.44s: here He is at work
+251.28s: 당신의 열쇠는 테이블 위에 있어요
+253.60s: your Keys are on the
+254.84s: table Keys are on
+256.32s: the table your Keys
+257.92s: are on the table
+259.28s: your Keys are on the
+260.16s: table 오늘은 막지만 따뜻하지는
+262.44s: 않아요 It's Sunny today
+264.52s: but it isn't warm
+266.20s: It's Sunny today but
+267.52s: it isn't warm sunny
+269.44s: today
+274.28s: 감사합니다 정말 친절하시군요
+287.12s: 보세요 크리스가
+298.64s: 있어요 열 수 있어요 Here is
+301.16s: your key Here is
+302.84s: your key Here is
+304.28s: your key Here is
+305.96s: your
+306.64s: key 제 이름은 나입니다 2살이에요
+309.60s: my name is anna I'm
+312.08s: 22 my name is anna
+314.28s: I'm 22 my name is
+316.64s: anna I'm 22 my name
+319.28s: is anna I'm 22 제가
+321.96s: 좋아하는 색은 파란색입니다 my
+324.16s: favorite color is
+325.08s: blue my favorite
+326.60s: color is blue my
+328.24s: favorite color is
+329.12s: blue my faite color
+330.96s: is blue 저는 미국인입니다
+332.84s: 시카고 출신이에요 I'm
+335.12s: American I'm from
+336.84s: Chicago I'm American
+338.96s: I'm from Chicago I'm
+340.96s: American I'm from
+342.60s: Chicago I'm American
+344.80s: I'm from Chicago 제가
+346.56s: 좋아하는 운동은 테니스와 수영입니다
+349.04s: my fav sps are tenn
+350.52s: and swimming mys are
+352.68s: ten and swiming mys
+355.04s: are ten and swiming
+356.80s: mys are and swiming
+359.00s: 학생이에요
+365.56s: 저는 미술에 관심이
+374.44s: 있습니다 아버지는 의사이고 어머니는
+377.32s: 기자이
+389.72s: my father is a do
+390.84s: and mother is journ
+392.68s: 저는 정치에 관심이 없어요
+396.36s: interest not
+397.64s: interest
+398.56s: in not
+400.92s: interest not
+402.72s: interest 피곤하지만 배고프지
+404.96s: 않아요 i'm tired But
+407.28s: I'm not hungry i'm
+409.08s: tired But I'm not
+410.16s: hungry i'm tired But
+412.44s: I'm not hungry tired
+414.84s: But I'm not hungry
+416.04s: 저는 32살입니다 제 여동생은
+418.16s: 2살이에요
+433.48s: 3는를 무서워합니다
+444.72s: 사람이에요 그는 미국인이 아닙니다
+450.32s: American Jane is
+451.92s: Australian is
+453.40s: American Jane is
+455.24s: Australian isn't
+457.04s: American Jane is
+458.68s: Australian is
+460.00s: American이 꽃들은 예쁘고
+462.04s: 비싸지 않아요 flowers are
+464.32s: Nice and AR
+465.64s: expensive these
+466.88s: flowers are Nice and
+468.08s: they AR expensive
+469.60s: these flowers are
+470.56s: Nice and they AR
+471.88s: expensive these
+474.68s: flowers 시에요 또 늦군요
+487.68s: 춥네요 창문 닫아도
+499.64s: 될까요 제임스는 선생님이 아닙니다
+502.20s: 그는 학생이에요
+514.84s: 나와 저는 좋은
+516.68s: 친구예요 goods
+520.20s: ands
+522.20s: ands
+524.24s: ands는 아름다운
+534.20s: 도시입니다 우리 집은 시내 근처에
+538.44s: 있어요 our house is
+540.00s: near downtown our
+541.56s: house is near
+542.44s: downtown our house
+543.96s: is near downtown 톰은
+545.68s: 여기 없어요 그는 직장에 있어요
+547.84s: Tom isn't here He is
+549.40s: at work Tom isn't
+551.04s: here He is at work
+552.96s: Tom isn't here He is
+554.52s: at work Tom is here
+556.80s: He is at work 당신의
+558.44s: 열쇠는 테이블 위에 있어요 your
+560.64s: Keys are on the
+561.52s: table Keys are on
+563.00s: the table Keys are
+564.80s: on table Keys are on
+567.60s: 오늘은 막지만 따뜻하지는 않아요
+579.96s: War 감사합니다 정말 친절하시군요
+582.76s: than
+585.44s: you Thank youce you
+589.00s: Thank
+590.04s: youce you Thank
+593.32s: you 보세요 크리스가 있어요
+606.00s: 여기 열 수 있어요

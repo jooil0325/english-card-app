@@ -1,0 +1,16 @@
+# Security / Secrets
+gemini_key.txt
+.env
+*.env
+secrets.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS / IDE / Backups
+.DS_Store
+.vscode/
+.idea/
+*.bak

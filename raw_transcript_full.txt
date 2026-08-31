@@ -1,0 +1,810 @@
+[0] 영어 문장을 반복해서 들으며 귀를
+[1] 열어 보세요.이
+[2] 영상은 김재우의 기본 동사 100백
+[3] 교재의 대표 문장 100개로 구성되어
+[4] 있으며 원어민이 실제 생활 속에서
+[5] 자주 사용하는 핵심 문장들만 [음악]
+[6] 담았습니다.
+[7] 먼저 한글 문장을 통해 의미를
+[8] 정리하고 이어지는 영어 [음악]
+[9] 문장을 반복해서 들으며 문장 감각을
+[10] 자연스럽게 익혀 보세요. 그럼 시작해
+[11] 볼까요?
+[12] >> [음악]
+[13] >> 반려동물 키우시나요?
+[14] Do you have any
+[15] pets?
+[16] Do you have any
+[17] pets?
+[18] Do you have any
+[19] pets?
+[20] 방금 간식을 먹었더니 배가 별로 안
+[21] 고파요.
+[22] I just had a snack,
+[23] so I'm not that
+[24] hungry.
+[25] I just had a snack
+[26] so I'm not that
+[27] hungry.
+[28] I just had a snack
+[29] so I'm not that
+[30] hungry.
+[31] >> 어제 아침에는 별 일이 다 있었어요.
+[32] I had a weird
+[33] morning yesterday.
+[34] I had a weird
+[35] morning yesterday.
+[36] I had a weird
+[37] morning yesterday.
+[38] 삼성이 오늘 신제품 출시 행사를
+[39] 열어요.
+[40] Samsung is having a
+[41] new product launch
+[42] today.
+[43] Samsung is having a
+[44] new product launch
+[45] today.
+[46] Samsung is having a
+[47] new product launch
+[48] today.
+[49] 오후에는 집안일을 좀 해야 해요.
+[50] I have some ches to
+[51] do in the afternoon.
+[52] I have some ches to
+[53] do in the afternoon.
+[54] I have some ches to
+[55] do in the afternoon.
+[56] 교토에 있는 기온거리는 분위기가 참
+[57] 매력적이에요.
+[58] Theon district in
+[59] has a charming vive.
+[60] The kect in has a
+[61] charming vive.
+[62] The kect in a
+[63] charming vi.
+[64] 우리를 저녁 식사에 불러 줘서
+[65] 고마워요.
+[66] Thank you for having
+[67] us over dinner.
+[68] Thank you for having
+[69] us over for dinner.
+[70] Thank you for having
+[71] us over for dinner.
+[72] 다니엘에게 태워 달라고 할 수도
+[73] 있잖아요.
+[74] You could have
+[75] Daniel give you a
+[76] ride.
+[77] You could have
+[78] Daniel give you a
+[79] ride.
+[80] You could have
+[81] Daniel give you a
+[82] ride.
+[83] 남자 친구가 콘서트 표를 구했어요.
+[84] My boyfriend got a
+[85] ticket to the
+[86] concert.
+[87] My boyfriend got a
+[88] ticket to the
+[89] concert.
+[90] My boyfriend got a
+[91] ticket to the
+[92] concert.
+[93] 자리 잡으려면 엄청 미리 예약해야
+[94] 해요.
+[95] You have to book way
+[96] in advance to get a
+[97] table there.
+[98] You have to book way
+[99] in advance to get a
+[100] table there.
+[101] You have to book way
+[102] in advance to get a
+[103] table there.
+[104] 퇴근하고 한잔해요.
+[105] Let's get a drink
+[106] after work.
+[107] Let's get a drink
+[108] after work.
+[109] Let's get a drink
+[110] after work.
+[111] 아메리카노 라지 사이즈로 하나
+[112] 주세요.
+[113] Can I get a large
+[114] americano?
+[115] Can I get a large
+[116] americano?
+[117] Can I get a large
+[118] americano?
+[119] 어젯밤에 돌아왔어요.
+[120] We just got back
+[121] last night.
+[122] We just got back
+[123] last night.
+[124] We just got back
+[125] last night.
+[126] >> 그녀가 왜 그렇게 화가 났는지 이해가
+[127] 안 돼요.
+[128] Don't get so upset.
+[129] I don't get why
+[130] she's so upset.
+[131] I don't get so
+[132] upset.
+[133] 제 영어 실력이 점점 녹쓸고 있는 것
+[134] 같아요.
+[135] I feel like my
+[136] English is getting
+[137] rusty.
+[138] I feel like my
+[139] English is getting
+[140] rusty.
+[141] I feel like my
+[142] English is getting
+[143] rusty.
+[144] 커피를 안 마시면 두통이 생겨요.
+[145] I get a headache if
+[146] I don't drink
+[147] coffee.
+[148] I get a headache if
+[149] I don't drink
+[150] coffee.
+[151] I get a headache if
+[152] I don't drink
+[153] coffee.
+[154] 장본 것을 집에 가져가야 해요.
+[155] groceries
+[156] need to get
+[157] groceries home.
+[158] I need to get these
+[159] groceries home.이
+[160] 동네는 햇빛이 잘 안 들어요.
+[161] Are much sunshine.
+[162] 당신의 자리를 우리 바로 옆자리로
+[163] 맡아두었어요.
+[164] We got a spot next
+[165] to us.
+[166] We got you a spot
+[167] next to us.
+[168] We got you spot next
+[169] to us.
+[170] 어제 머리 염색했어요.
+[171] I got my hair died
+[172] yesterday.
+[173] I got my hair died
+[174] yesterday.
+[175] I got my hair died
+[176] yesterday.
+[177] 어떻게 애들이 채소를 먹게 만들 수
+[178] 있을까요?
+[179] How can I get my
+[180] kids to eat
+[181] vegetables?
+[182] How can I get my
+[183] kids to eat
+[184] vegetables?
+[185] How can I get my
+[186] kids to eat
+[187] vegetables?
+[188] 빗찜 먹고 싶으면 내가 해 줄게요.
+[189] steamed if you want.
+[190] I can make you
+[191] steamed carby if you
+[192] want.
+[193] I can make you
+[194] steamed carby if
+[195] want.
+[196] 아이들이 생긴 후 제가 더 좋은
+[197] 남편이 되었어요.
+[198] Having children has
+[199] made me a better
+[200] husband.
+[201] Having children has
+[202] made me a better
+[203] husband.
+[204] Having children has
+[205] made me a better
+[206] husband.
+[207] 오늘 억지로 운동하러 갔어요.
+[208] I made myself go to
+[209] the gym today.
+[210] I made myself go to
+[211] the gym today.
+[212] I made myself go to
+[213] the gym today.
+[214] >> 교통 채증에 갇혀 있으면 불안해져요.
+[215] Sitting in traffic
+[216] makes me feel
+[217] anxious.
+[218] Sitting in traffic
+[219] makes me feel
+[220] anxious.
+[221] Sitting in traffic
+[222] makes me feel
+[223] anxious.
+[224] 그 팀이 결승에 진출했어요.
+[225] They made it to the
+[226] finals.
+[227] They made it to the
+[228] finals.
+[229] They made it to the
+[230] finals.
+[231] 그 둘은 정말 잘 어울리는 커플이 될
+[232] 것 같아요.
+[233] Those two would make
+[234] a great couple.
+[235] Those two would make
+[236] a great couple.
+[237] Those two would make
+[238] a great couple.
+[239] 다 못 먹으면 남은 것을 집으로
+[240] 가져가면 돼요.
+[241] If we can't finish,
+[242] we can take the
+[243] leftovers home.
+[244] If we can't finish,
+[245] we can take the
+[246] leftovers home.
+[247] If we can't finish
+[248] the leftovers home.
+[249] 그 유치원은 오세미만 아동은 안
+[250] 받아요.
+[251] That kindergarten
+[252] doesn't take kids
+[253] under
+[254] that kindergarten
+[255] doesn't take kids
+[256] under.
+[257] 케빈은 누구의 충고도 듣지 않아요.
+[258] Kevin doesn't take
+[259] advice from anyone.
+[260] Kevin doesn't take
+[261] advice from anyone.
+[262] Kevin doesn't take
+[263] advice from anyone.
+[264] 전 좀처럼 화를 내지 않아요.
+[265] Takes a lot to make
+[266] me angry.
+[267] It takes a lot to
+[268] make me angry.
+[269] It takes a lot to
+[270] make me angry.
+[271] 그 책 다 읽는데 몇 달이 걸렸어요?
+[272] Mon to finish that
+[273] book.
+[274] Itok me mon to
+[275] finish reading that
+[276] book.
+[277] Itok me to finish
+[278] that book.
+[279] 그녀가 기분 상해하더군요.
+[280] She didn't take it
+[281] well.
+[282] She didn't take it
+[283] well.
+[284] She didn't take it
+[285] well.
+[286] 저는 회사에서 일반 행정 업무를 많이
+[287] 해요.
+[288] ADM work at my job.
+[289] I do a lot of admin
+[290] work at my job.
+[291] I do a lot of admin.
+[292] 골프 치는 거 별로 안 좋아하지만 일
+[293] 때문에 어쩔 수 없이 해야 해요.
+[294] I don't like to play
+[295] golf, but I have to
+[296] for my job.
+[297] I don't like to play
+[298] golf, but I have to
+[299] for my job.
+[300] I don't play but for
+[301] my job.
+[302] 한동안 못 봤네요.
+[303] I haven't seen you
+[304] for a while.
+[305] I haven't seen you
+[306] for a while.
+[307] I haven seen you for
+[308] a while.
+[309] >> 그 집 주인 알아요?
+[310] I know the owner.
+[311] I know the owner.
+[312] I know the owner.이
+[313] 이 다이어트는 저한테 효과
+[314] 만점이었어요.
+[315] This diet really
+[316] worked for me.
+[317] This diet really
+[318] worked for me.
+[319] This diet really
+[320] worked for me.
+[321] 데이트 방식이 더 이상 그렇지가
+[322] 않아요. 치다가 바뀌었어요.
+[323] dating doesn't work
+[324] that way anymore.
+[325] Times have changed.
+[326] Dating doesn't work
+[327] that way anymore.
+[328] Times have changed.
+[329] Dating doesn't work
+[330] that way anymore.
+[331] 여행 잘 다녀오셨다니 다행입니다.
+[332] I'm glad to hear
+[333] your trip went well.
+[334] I'm glad to hear
+[335] your trip went well.
+[336] I'm glad to hear
+[337] your trip went well.
+[338] 무슨 이유에서 화면이 어두워졌어요.
+[339] The screen went dark
+[340] for some reason.
+[341] The screen went dark
+[342] for some reason.
+[343] The screen went dark
+[344] for some reason.
+[345] 음식물 쓰레기는이 노란 봉투에 넣으면
+[346] 돼요.
+[347] trash goes inellow
+[348] bag.
+[349] Food trash goes in
+[350] this bag.
+[351] Food trash goes in
+[352] this yellow bag.
+[353] 여기까지 태워줄까요?
+[354] Do you want a ride
+[355] to the station?
+[356] Do you want a ride
+[357] to the station?
+[358] Do you want a ride
+[359] to the station?
+[360] 홈페이지에는 그 제품 제고가 없다고
+[361] 나와 있어요.
+[362] The website says the
+[363] item is out of
+[364] stock.
+[365] The website says the
+[366] item is out of
+[367] stock.
+[368] The website says the
+[369] is out of stock.
+[370] 제가 문까지 바르다 드릴게요.
+[371] Let me walk you out.
+[372] Let me walk you out.
+[373] Let me walk you out.
+[374] >> 제 얘기 좀 마저하게 해 주시겠어요?
+[375] Let me finish my
+[376] sentence, please.
+[377] Could you let me
+[378] finish my sentence,
+[379] please?
+[380] Could you let me
+[381] finish my sentence,
+[382] please?
+[383] 전 악플에 굴하지 않을 거예요.
+[384] Nasty coms
+[385] discourage me.
+[386] I can't let nasty
+[387] coms discourage me.
+[388] I can't let nasty
+[389] coms discourage me.이
+[390] 이 노래 진짜 소름 돋네요.
+[391] This song gives me
+[392] chills.
+[393] This song gives me
+[394] chills.
+[395] This song gives me
+[396] chills.
+[397] 프로젝트 현황을 짧게 업데이트해
+[398] 드리겠습니다.
+[399] Let me give you a
+[400] quick update on the
+[401] project.
+[402] Let me give you a
+[403] quick update on the
+[404] pro.
+[405] Let me give you a
+[406] quick update on the
+[407] project.
+[408] 오물렛 팬은 당신이 가져요.
+[409] You can keep the
+[410] omelet pan.
+[411] You can keep the
+[412] omlet pan.
+[413] You can keep the
+[414] omelet.이
+[415] 이 웹사이트에서
+[416] 계속 에러 메시지가 떠요.
+[417] This website keeps
+[418] giving me an error
+[419] message.
+[420] This website keeps
+[421] giving me an error
+[422] message.
+[423] This website keeps
+[424] giving me an error
+[425] message.
+[426] 와, 욕시를 깨끗하게 관리하는 비결이
+[427] 뭐예요?
+[428] Well, how do you
+[429] keep your bathroom
+[430] so clean?
+[431] Well, how do you
+[432] keep your bathroom
+[433] so clean?
+[434] Well, how do you
+[435] keep your bathroom
+[436] so clean?
+[437] 내일 첫 비행기로 출국합니다.
+[438] I'm leaving on the
+[439] first flight out
+[440] tomorrow.
+[441] I'm leaving on the
+[442] first flight out
+[443] tomorrow.
+[444] I'm leaving on the
+[445] first flight out
+[446] tomorrow.
+[447] 배고프면 먹으라고 거기 피자 좀
+[448] 놔두었어요.
+[449] I left you some
+[450] pizza over there if
+[451] you're hungry.
+[452] I left you some
+[453] pizza over there if
+[454] you're hungry.
+[455] 문을 열어 둘까요?
+[456] Do you want me to
+[457] leave the door open?
+[458] Do you want me to
+[459] leave the door open?
+[460] Do you want me to
+[461] leave the door open?
+[462] 닉을 데려가도 되나요?
+[463] Nick with me?
+[464] Do you mind if I
+[465] bring Nick with me?
+[466] 이번 주말에 부산 내려가요.
+[467] I'm heading down to
+[468] this weekend.
+[469] I'm heading down to
+[470] 부산 this weekend.
+[471] I'm heading down to
+[472] this weekend.
+[473] 파티에 우리랑 같이 가는 거지요?
+[474] Are you coming with
+[475] us to the party?
+[476] Are you coming with
+[477] us to the party?
+[478] Are you coming with
+[479] us to the party?
+[480] 그쪽에서 저를 대기자 명단에
+[481] 올려줬어요.
+[482] They put me on the
+[483] waiting list.
+[484] They put me on the
+[485] waiting list.
+[486] They put me on the
+[487] waiting.
+[488] >> 악플은 늘 제 기분을 안 좋게
+[489] 합니다.
+[490] Nasty coms always
+[491] put me in a bad
+[492] mood.
+[493] Nasty coms always
+[494] put me in a bad
+[495] mood.
+[496] Nasty coms always
+[497] put me in a bad
+[498] mood.이
+[499] 양복 비싼 느낌이에요.
+[500] This suits feels
+[501] expensive.
+[502] This suits feels
+[503] expensive.
+[504] This suits feels
+[505] expensive.
+[506] 당신이 벌써 서른이 되었다니 믿기지가
+[507] 않는군요.
+[508] Can't believe youve
+[509] already turned 30.
+[510] I can't believe
+[511] youve already turned
+[512] 30.
+[513] I can't believe
+[514] youve already turned
+[515] 30.
+[516] 선풍기 좀 저쪽으로 옮겨도 될까요?
+[517] Is it okay if I move
+[518] the fan away from
+[519] me?
+[520] Is it okay if I move
+[521] the fan away from
+[522] me?이
+[523] 이 선물가게는 수녀님들이 운영하고
+[524] 있어요.
+[525] The gift shop is run
+[526] by nuns.
+[527] The gift shop is run
+[528] by nuns.
+[529] The gift shop is run
+[530] by ns.
+[531] 침은 한 번도 안 맞아봤어요.
+[532] I've never tried
+[533] acupuncture before.
+[534] I've never tried
+[535] acupuncture before.
+[536] I've never tried
+[537] acupuncture before.
+[538] 너무 더워서 견디기가 힘들어요.
+[539] It's so hot. I can't
+[540] stand it.
+[541] It's so hot. I can't
+[542] stand it.
+[543] It's so hot. I can't
+[544] stand it.
+[545] >> 제가 제일 아끼는 컵 손잡이가
+[546] 부러졌어요.
+[547] The handle on my
+[548] favorite cup broke.
+[549] The handle on my
+[550] favorite cup broke.
+[551] The handle on my
+[552] favorite cup broke.을
+[553] 찬물을 마시면이가 아파요.
+[554] My tooth hurts when
+[555] I drink cold water.
+[556] My tooth hurts when
+[557] I drink cold water.
+[558] My tooth hurts when
+[559] I drink cold water.
+[560] 아무것도 안 먹더군요.
+[561] I noticed you never
+[562] eat anything at
+[563] lunch.
+[564] I noticed you never
+[565] eat anything at
+[566] lunch.
+[567] I noticed you never
+[568] eat anything at
+[569] lunch.
+[570] 내일까지 답변 주시기 바랍니다.
+[571] I expect an answer
+[572] by tomorrow.
+[573] I expect an answer
+[574] by tomorrow.
+[575] I expect an answer
+[576] by tomorrow.
+[577] 우리가 지다니 말도 안 돼요.
+[578] I just can't believe
+[579] we lost.
+[580] I just can't believe
+[581] we lost.
+[582] I just can't believe
+[583] we lost.
+[584] 아침 7시에 버스를 타야 해요.
+[585] I have to catch the
+[586] bus at 7 am.
+[587] C at 7 am.
+[588] I have to catch the
+[589] bus at 7 am.
+[590] 너무 비싸요.
+[591] It costs too much.
+[592] It costs too much.
+[593] It costs too much.
+[594] 2만 원이 제가 제시할 수 있는 최대
+[595] 금액입니다.
+[596] I can offer.
+[597] I can off
+[598] the most offer.
+[599] 체중 감량을 위해서는 절제력이
+[600] 필요합니다.
+[601] Losing weight
+[602] requires discipline.
+[603] Losing weight
+[604] requires discipline.
+[605] Losing weight
+[606] requires discipline.
+[607] 지난주 영어 말하기 워크숍에서
+[608] 자신감을 많이 얻었어요.
+[609] I gained a lot of
+[610] confidence at the
+[611] English speaking
+[612] workshop last week.
+[613] I gained a lot of
+[614] confidence at the
+[615] engl speaking
+[616] workshop last week.
+[617] I gained a lot of
+[618] confidence at the
+[619] engl speaking
+[620] workshop last week.
+[621] 오사카의 친구들이 있다고 하지
+[622] 않았어요?
+[623] Didn't you mention
+[624] that you have
+[625] friends in Osaka?
+[626] Didn't you mention
+[627] that you have
+[628] friends in Osaka?
+[629] Didn't you mention
+[630] that you have
+[631] friends in Osaka?
+[632] 그 여자 같은 사람은 도저히 감당이
+[633] 안 돼요.
+[634] I can't handle
+[635] people like her.
+[636] I can't handle
+[637] people like her.
+[638] I can't handle
+[639] people like her.
+[640] 아이스 커피는 사계절 잘 팔립니다.
+[641] Iced coffee sells
+[642] year round.
+[643] Iced coffee sells
+[644] year round.
+[645] Ied coffee sells
+[646] year round.
+[647] 나비넥타일은 저한테 안 어울려요.
+[648] B don't suit me.
+[649] Bes don't suit me.
+[650] B don't suit me.
+[651] 어제 모임에 못 가서 너무 미안해요.
+[652] I'm very sorry for
+[653] missing our meet up
+[654] yesterday.
+[655] I'm very sorry for
+[656] missing our meet up
+[657] yesterday.
+[658] I'm very sorry for
+[659] missing meet.
+[660] 경기가 연장전 끝에 4대 3으로
+[661] 끝났어요.이
+[662] 케이크 다 못 먹겠어요. 너무
+[663] 달아요.
+[664] I can't finish this
+[665] cake. It's too
+[666] sweet.
+[667] I can't finish this
+[668] cake. It's too
+[669] sweet.
+[670] I can't finish this
+[671] cake. It's too
+[672] sweet.이
+[673] 이 먹잔들은이 수납장에 둬야 해요.이
+[674] 이 근처에 집살 형편이 되면 좋을
+[675] 텐데요.
+[676] I wish I could
+[677] afford to buy a
+[678] place around here.
+[679] I wish I could
+[680] afford to buy a
+[681] place around here.
+[682] I wish I could
+[683] afford to buy a
+[684] place around here.
+[685] 자리 잡고 앉으시면 시작하겠습니다.
+[686] Please grab a seat
+[687] and get started.
+[688] Please grab a seat
+[689] and we get started.
+[690] Please grab a seat
+[691] and get started.
+[692] 우리가 다시 결혼 생활을 잘할 수
+[693] 있을지 모르겠어요.
+[694] I'm not sure if we
+[695] can fix our
+[696] marriage.
+[697] I'm not sure if we
+[698] can fix our
+[699] marriage.
+[700] I'm not sure if we
+[701] can fix our
+[702] marriage.
+[703] 그 사람들도 싸다고 생각해요.
+[704] think goter
+[705] I think goter
+[706] thinker
+[707] 저는이 호텔에 묵어도 괜찮아요.
+[708] I wouldn't mind
+[709] staying at this
+[710] hotel.
+[711] I wouldn't mind
+[712] staying at this
+[713] hotel.
+[714] I wouldn't mind
+[715] staying at.
+[716] >> 우리 결혼 기념일을 맞아서 서울 실라
+[717] 호텔에 방을 예약했어요.
+[718] I booked us a room
+[719] at the hotel.
+[720] I booked us at the
+[721] hotel for
+[722] anniversary.
+[723] 당신은 항상 뭔가 하느라 바쁜 거
+[724] 같아요.
+[725] busy with something.
+[726] You always seem busy
+[727] with something.
+[728] You always seem busy
+[729] with something.
+[730] 노트북이 느려지면 정말 짜증이 나요.
+[731] BS me when my laptop
+[732] is slow.
+[733] It really bothers me
+[734] when my laptop is
+[735] slow.
+[736] It really bothers me
+[737] when my laptop is
+[738] slow.
+[739] 그는 문자에 답장하는 법이 없어요.
+[740] He never bothers
+[741] texting back.
+[742] He never bothers
+[743] texting back.
+[744] He never bothers
+[745] texting back.
+[746] 잠깐 시간 내서 저 좀 도와주실 수
+[747] 있나요?
+[748] Can you spare a
+[749] moment to help me
+[750] with something?
+[751] Can you spare a
+[752] moment to help me
+[753] with something?
+[754] Can you spare a
+[755] moment to help me
+[756] with something?
+[757] 저녁 먹기 전에 사탕 먹지 말아요.
+[758] 입맛 없어져요.
+[759] Don't eat candy
+[760] before dinner. You
+[761] ruin your appetite.
+[762] Don't eat candy
+[763] before dinner. You
+[764] ruin your appetite.
+[765] Don't eat candy
+[766] before dinner.
+[767] 은행 대출금 다 갚았어요.
+[768] I don't owe the bank
+[769] anything.
+[770] I don't ow the bank
+[771] anything.
+[772] I don't ow the bank
+[773] anything.
+[774] 일주일 동안 카페인 끊었어요.
+[775] I qua for a week.
+[776] I quit cafe for a
+[777] week.
+[778] I quit cafe for a
+[779] week.
+[780] 사람을 보내서 데리러 가게 할게요.
+[781] arrange for someone
+[782] to pick you up.
+[783] Arrange for someone
+[784] to pick you up.
+[785] Arrange for someone
+[786] to pick you up.
+[787] 저는 하체 운동을 절대 거르지
+[788] 않아요.
+[789] I never skip leg
+[790] day.
+[791] I never skip leg
+[792] day.
+[793] I never skip leg
+[794] day.
+[795] >> 영화 줄거리 말하지 말아요. 아직 안
+[796] 봤단 말이에요.
+[797] Don't spoil the
+[798] movie. I hav seen it
+[799] yet.
+[800] Don't spoil the mov
+[801] I hav seen it yet.
+[802] Don't spoil the mov
+[803] I hav seen it yet.
+[804] [음악]
+[805] >> [음악]
+[806] >> to
+[807] I don't know
+[808] what
+[809] every
