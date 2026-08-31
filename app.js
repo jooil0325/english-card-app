@@ -593,12 +593,20 @@ class EngCardApp {
             }
         });
 
-        // Flashcard Control Buttons
+        // Flashcard & Smart List Control Buttons
         this.btnShuffleCards?.addEventListener('click', () => {
+            this.triggerHaptic('light');
             this.sentences.sort(() => Math.random() - 0.5);
             this.reassignNo();
+            if (this.sessionQueue && this.sessionQueue.length > 0) {
+                this.sessionQueue.sort(() => Math.random() - 0.5);
+            }
             this.currentCardIndex = 0;
+            this.saveState();
+            
             this.renderFlashcard();
+            this.renderSentenceList();
+            this.showToast('🔀 문장 순서가 랜덤하게 섞였습니다!', 'info');
         });
 
         // 3-Grade Assessment Buttons
@@ -607,8 +615,14 @@ class EngCardApp {
         this.btnGradeEasy?.addEventListener('click', () => this.gradeCard('easy'));
 
         this.btnResetSession?.addEventListener('click', () => {
+            this.triggerHaptic('medium');
             this.initDailySession(true);
+            this.currentCardIndex = 0;
+            this.saveState();
+
             this.renderFlashcard();
+            this.renderSentenceList();
+            this.showToast('↺ 오늘 학습 세션이 초기화되었습니다.', 'info');
         });
 
         this.btnStartSessionQuiz?.addEventListener('click', () => {
