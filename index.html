@@ -172,119 +172,93 @@
         </div>
 
         <!-- ==========================================================================
-             TAB 1: Magic Omni-Collector (만능 스마트 문장 수집창)
+             TAB 1: Magic Omni-Collector (ChatGPT / Apple Notes Style Smart Input)
              ========================================================================== -->
-        <section id="tab-add" class="tab-content flex-col gap-5 hidden">
-            <!-- Header -->
-            <div class="flex flex-col gap-1">
-                <h2 class="font-bold text-2xl text-on-surface">📥 문장 수집</h2>
-                <p class="text-sm text-on-surface-variant">단어, 문장, 한글 뜻, 유튜브 링크, 여러 줄 텍스트, 파일을 자유롭게 넣어보세요.</p>
+        <section id="tab-add" class="tab-content flex-col gap-4 hidden">
+            <!-- Sleek Integrated Smart Card -->
+            <div class="bg-surface rounded-3xl p-5 sm:p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-3 relative focus-within:border-primary/50 focus-within:shadow-md transition-all" id="omniDropCard">
+                
+                <!-- Card Header: Target Deck Selector Chip & Mode Badge -->
+                <div class="flex items-center justify-between text-xs pb-2 border-b border-outline-variant/15">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                            <span class="material-symbols-outlined text-primary text-[16px]">folder</span>
+                            저장:
+                        </span>
+                        <select id="selectSmartDeck" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-bold text-primary focus:ring-1 focus:ring-primary cursor-pointer">
+                            <option value="deck_default">기본 덱</option>
+                        </select>
+                        <select id="selectSmartCategory" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-semibold text-on-surface-variant focus:ring-1 focus:ring-primary cursor-pointer">
+                            <option value="일상 회화">일상 회화</option>
+                            <option value="비즈니스">비즈니스</option>
+                            <option value="여행">여행</option>
+                            <option value="패턴/관용구">패턴/관용구</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+
+                    <span id="omniDetectedModeBadge" class="text-[11px] font-bold text-primary/80 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                        <span id="omniModeText">스마트 감지</span>
+                    </span>
+                </div>
+
+                <!-- Live Voice Recording Ribbon (Only visible while recording) -->
+                <div id="smartVoiceStatus" class="hidden flex items-center justify-between p-2.5 bg-error-container/20 border border-error/30 rounded-2xl text-xs text-error font-semibold animate-fade-in-up">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+                        <span id="smartVoiceStatusText">음성을 듣고 있습니다...</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" id="btnVoiceLangEn" class="px-2 py-0.5 rounded-lg bg-primary text-white font-bold text-[11px]">EN</button>
+                        <button type="button" id="btnVoiceLangKo" class="px-2 py-0.5 rounded-lg text-on-surface-variant font-semibold text-[11px]">KO</button>
+                        <button id="btnStopSmartVoice" class="px-2.5 py-1 rounded-xl bg-error text-white text-[11px] font-bold hover:opacity-90 active:scale-95 cursor-pointer ml-1">완료</button>
+                    </div>
+                </div>
+
+                <!-- The Smart Input Textarea -->
+                <textarea id="smartCaptureInput" class="w-full bg-transparent border-0 p-1 text-base font-semibold text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none transition-all leading-relaxed resize-y min-h-[110px]" placeholder="외우고 싶은 영어 문장, 단어, 뜻, 유튜브 링크를 입력하세요...&#10;(단어/문장을 넣으면 뜻과 예문을 자동으로 완성해 드립니다)" autocomplete="off"></textarea>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.pdf,.txt,.json,.epub" class="hidden">
+
+                <!-- Bottom Toolbar: Minimal Action Icons + Submit Arrow Button -->
+                <div class="flex items-center justify-between pt-2 border-t border-outline-variant/15">
+                    <!-- Left Quick Action Tool Icons -->
+                    <div class="flex items-center gap-1">
+                        <button id="btnPasteClipboard" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="클립보드 붙여넣기">
+                            <span class="material-symbols-outlined text-[20px]">content_paste</span>
+                        </button>
+                        <button id="btnSmartVoiceMic" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="음성 입력 (마이크)">
+                            <span class="material-symbols-outlined text-[20px]" id="smartVoiceMicIcon">mic</span>
+                        </button>
+                        <button id="btnTriggerFileUpload" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="파일 첨부 (엑셀, CSV, TXT, PDF)">
+                            <span class="material-symbols-outlined text-[20px]">attach_file</span>
+                        </button>
+                    </div>
+
+                    <!-- Right Submit Button (Clean Pill Button) -->
+                    <button id="btnConfirmSmartSave" class="px-4 py-2 bg-primary text-white rounded-full font-bold text-xs hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                        <span>등록</span>
+                        <span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Single Magic Omni-Collector Card -->
-            <div class="bg-surface rounded-3xl p-6 sm:p-7 border border-outline-variant/30 shadow-md flex flex-col gap-4 relative overflow-hidden" id="omniDropCard">
-                
-                <!-- Top Action Toolbar -->
-                <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-outline-variant/20">
-                    <div class="flex items-center gap-2">
-                        <button id="btnPasteClipboard" class="px-3.5 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-95 border border-primary/20 shadow-xs cursor-pointer" title="클립보드에 복사된 내용 붙여넣기">
-                            <span class="material-symbols-outlined text-[18px]">content_paste</span>
-                            <span>📋 클립보드 붙여넣기</span>
-                        </button>
-                        <button id="btnSmartVoiceMic" class="px-3.5 py-2 rounded-xl bg-secondary-container/40 hover:bg-secondary-container text-on-secondary-container text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-95 border border-secondary/20 shadow-xs cursor-pointer" title="음성으로 말해서 입력">
-                            <span class="material-symbols-outlined text-[18px]" id="smartVoiceMicIcon">mic</span>
-                            <span>🎙️ 음성 입력</span>
-                        </button>
-                        <button id="btnTriggerFileUpload" class="px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 border border-outline-variant/30 shadow-xs cursor-pointer" title="엑셀, CSV, PDF, TXT 파일 첨부">
-                            <span class="material-symbols-outlined text-[18px]">upload_file</span>
-                            <span>📎 엑셀 / 파일 첨부</span>
-                        </button>
-                    </div>
-
-                    <!-- Voice Recognition Language Toggle -->
-                    <div class="flex items-center gap-1 bg-surface-container p-1 rounded-xl border border-outline-variant/30 text-xs">
-                        <button type="button" id="btnVoiceLangEn" class="px-2.5 py-1 rounded-lg bg-primary text-white font-extrabold text-xs transition-all shadow-sm">EN (영어)</button>
-                        <button type="button" id="btnVoiceLangKo" class="px-2.5 py-1 rounded-lg text-on-surface-variant hover:text-on-surface font-bold text-xs transition-all">KO (한국어)</button>
-                    </div>
-                </div>
-
-                <!-- Voice Recording Live Status Bar -->
-                <div id="smartVoiceStatus" class="hidden flex items-center justify-between p-3.5 bg-error-container/20 border border-error/30 rounded-2xl text-xs text-error font-semibold animate-fade-in-up">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-error animate-ping"></span>
-                        <span id="smartVoiceStatusText">음성을 듣고 있습니다... 말씀해 주세요.</span>
-                    </div>
-                    <button id="btnStopSmartVoice" class="px-3 py-1.5 rounded-xl bg-error text-white text-xs font-bold hover:opacity-90 active:scale-95 cursor-pointer">완료 / 중지</button>
-                </div>
-
-                <!-- The Single Universal Omni-Textarea -->
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex items-center justify-between">
-                        <span id="omniDetectedModeBadge" class="text-xs font-extrabold text-primary flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
-                            <span id="omniModeText">✨ 스마트 자동 감지 모드</span>
-                        </span>
-                        <span id="smartTranslateIndicator" class="text-[11px] text-primary font-bold hidden">✨ 자동 번역됨</span>
-                    </div>
-                    <textarea id="smartCaptureInput" class="w-full bg-surface-container-low border-2 border-outline-variant/40 rounded-2xl p-4 text-base font-semibold text-on-surface placeholder:text-outline/70 focus:ring-2 focus:ring-primary focus:border-primary focus:bg-white transition-all shadow-inner leading-relaxed resize-y min-h-[120px]" placeholder="외우고 싶은 건 무엇이든 여기에 넣으세요:
-• 영어 문장 (예: Break a leg today!)
-• 한글 뜻 (예: 오늘 행운을 빌어!)
-• 영문 - 한글 혼합 (예: Break a leg - 행운을 빌어)
-• 여러 줄 복사 붙여넣기 (일괄 등록)
-• YouTube 링크 (https://youtu.be/...)" autocomplete="off"></textarea>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.pdf,.txt,.json,.epub" class="hidden">
-                </div>
-
-                <!-- Foldable Target Deck & Category Settings -->
-                <div class="border-t border-outline-variant/20 pt-2">
-                    <details class="group">
-                        <summary class="flex items-center justify-between text-xs font-bold text-on-surface-variant cursor-pointer hover:text-primary list-none select-none py-1">
-                            <span class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-primary">tune</span>
-                                <span>⚙️ 더보기 / 저장 설정 (<span id="quickAddDeckLabel" class="text-primary font-extrabold">기본 덱</span> • <span id="quickAddCatLabel">일상 회화</span>)</span>
-                            </span>
-                            <span class="material-symbols-outlined text-[18px] group-open:rotate-180 transition-transform">expand_more</span>
-                        </summary>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-on-surface-variant">저장할 단어장(덱)</label>
-                                <select id="selectSmartDeck" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-2.5 text-xs font-semibold text-on-surface focus:ring-2 focus:ring-primary">
-                                    <option value="deck_default">기본 덱</option>
-                                </select>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-on-surface-variant">카테고리</label>
-                                <select id="selectSmartCategory" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-2.5 text-xs font-semibold text-on-surface focus:ring-2 focus:ring-primary">
-                                    <option value="일상 회화">일상 회화</option>
-                                    <option value="비즈니스">비즈니스</option>
-                                    <option value="여행">여행</option>
-                                    <option value="패턴/관용구">패턴/관용구</option>
-                                    <option value="기타">기타</option>
-                                </select>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
-                <!-- Hidden inputs for backward compatibility -->
+            <!-- Hidden compatibility elements -->
+            <div class="hidden">
+                <span id="quickAddDeckLabel"></span>
+                <span id="quickAddCatLabel"></span>
+                <span id="smartTranslateIndicator"></span>
                 <input type="hidden" id="previewEnglishInput">
                 <input type="hidden" id="previewKoreanInput">
-                <textarea id="youtubeUrl" class="hidden"></textarea>
-                <textarea id="inputQuickBatchText" class="hidden"></textarea>
-                <select id="selectScrapTargetDeck" class="hidden"></select>
-                <input type="checkbox" id="chkScrapNewDeck" class="hidden">
-                <input type="text" id="inputScrapNewDeckName" class="hidden">
-                <button id="btnScrapYoutube" class="hidden"></button>
-                <button id="btnParseQuickText" class="hidden"></button>
-                <button id="btnSmartUnifiedBulk" class="hidden"></button>
-                <div id="quickParsePreview" class="hidden"></div>
-
-                <!-- Main Confirm Button -->
-                <button id="btnConfirmSmartSave" class="w-full bg-primary text-on-primary font-extrabold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_20px_rgba(70,72,212,0.3)] flex items-center justify-center gap-2 text-base cursor-pointer">
-                    <span class="material-symbols-outlined text-[20px]">add_circle</span>
-                    <span>⚡ 스마트 등록 & 저장 (Enter)</span>
-                </button>
-
+                <textarea id="youtubeUrl"></textarea>
+                <textarea id="inputQuickBatchText"></textarea>
+                <select id="selectScrapTargetDeck"></select>
+                <input type="checkbox" id="chkScrapNewDeck">
+                <input type="text" id="inputScrapNewDeckName">
+                <button id="btnScrapYoutube"></button>
+                <button id="btnParseQuickText"></button>
+                <button id="btnSmartUnifiedBulk"></button>
+                <div id="quickParsePreview"></div>
             </div>
 
             <!-- Common Scraped Results Container (for YouTube & Bulk Results) -->
@@ -1197,6 +1171,6 @@
     </script>
 
     <!-- Application Script -->
-    <script src="app.js?v=20260831_v28"></script>
+    <script src="app.js?v=20260831_v29"></script>
 </body>
 </html>
