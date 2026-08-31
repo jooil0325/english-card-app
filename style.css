@@ -570,52 +570,47 @@ body {
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
-/* Material 3 Bottom Sheet Dialog */
-.bottom-sheet-overlay {
+/* Modern Centered Floating Modal Dialog */
+.bottom-sheet-overlay,
+.modal-centered-overlay {
     position: fixed;
     inset: 0;
     z-index: 100;
     background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
+    padding: 1rem;
 }
 
-.bottom-sheet-container {
+.bottom-sheet-container,
+.modal-dialog-card {
     width: 100%;
-    max-width: 32rem;
+    max-width: 28rem;
     max-height: 90vh;
     background: var(--surface);
-    border-top-left-radius: 2rem;
-    border-top-right-radius: 2rem;
-    border-top: 1px solid rgba(199, 196, 215, 0.35);
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 60px -10px rgba(15, 23, 42, 0.35);
     overflow-y: auto;
-    animation: slideUpSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    animation: modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes slideUpSheet {
+@keyframes modalPopIn {
     from {
-        transform: translateY(100%);
-        opacity: 0.85;
+        transform: scale(0.92) translateY(12px);
+        opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: scale(1) translateY(0);
         opacity: 1;
     }
 }
 
 .bottom-sheet-handle {
-    width: 40px;
-    height: 4.5px;
-    border-radius: 9999px;
-    background-color: var(--outline-variant);
-    margin: 10px auto 14px auto;
-    opacity: 0.7;
+    display: none;
 }
 
 /* Material 3 Bottom Navigation Bar */
