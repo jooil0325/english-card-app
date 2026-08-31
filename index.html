@@ -113,80 +113,63 @@
 </head>
 <body class="bg-background text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-fixed selection:text-on-primary-fixed pb-safe">
 
-    <!-- TopAppBar (Safe Area Top Aware) -->
-    <header class="sticky w-full top-0 z-40 bg-surface/85 backdrop-blur-md shadow-xs border-b border-outline-variant/20 transition-all duration-300 safe-area-top">
-        <div class="flex justify-between items-center px-4 md:px-8 py-2.5 w-full max-w-5xl mx-auto">
+    <!-- TopAppBar (Safe Area Top Aware & Ultra-Clean) -->
+    <header class="sticky w-full top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-outline-variant/15 transition-all duration-300 safe-area-top">
+        <div class="flex justify-between items-center px-4 md:px-8 py-2 w-full max-w-3xl mx-auto">
             <!-- Brand Logo -->
-            <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity active:scale-95" onclick="window.app?.switchTab('tab-cards')">
-                <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+            <div class="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-all active:scale-95" onclick="window.app?.switchTab('tab-cards')">
+                <div class="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-xs">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                </div>
                 <div class="flex flex-col">
-                    <span class="font-extrabold text-2xl text-primary tracking-tight leading-none">TUK</span>
-                    <span class="text-[9px] font-bold text-on-surface-variant tracking-wider uppercase">Train • Unlock • Keep</span>
+                    <span class="font-extrabold text-xl text-on-surface tracking-tight leading-none">TUK</span>
+                    <span class="text-[8px] font-extrabold text-primary tracking-wider uppercase">Train • Unlock • Keep</span>
                 </div>
             </div>
 
-            <!-- Stats & Quick Actions Header Cluster -->
+            <!-- Header Right: Clean Quick Controls -->
             <div class="flex items-center gap-2" id="statsSummary">
-                <div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-on-surface text-xs font-semibold" title="전체 등록 문장">
-                    <span class="material-symbols-outlined text-[16px] text-on-surface-variant">library_books</span>
-                    <span>전체: <strong id="totalCount">0</strong></span>
-                </div>
-                <div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container text-xs font-semibold" title="암기 완료 문장">
-                    <span class="material-symbols-outlined text-[16px] text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
-                    <span>암기: <strong id="memorizedCount">0</strong></span>
-                </div>
-                
-                <!-- Due Badge (Glowing pulse) -->
-                <button id="dueBadge" class="px-3 py-1 rounded-full bg-tertiary-fixed text-tertiary border border-tertiary-fixed-dim/40 text-xs font-bold flex items-center gap-1.5 hover:opacity-90 active:scale-95 animate-subtle-pulse transition-all cursor-pointer" title="오늘 복습할 문장">
-                    <span class="w-2 h-2 rounded-full bg-tertiary-container shadow-[0_0_8px_rgba(255,185,95,0.9)]"></span>
-                    <span>오늘복습: <strong id="dueCount">0</strong></span>
+                <!-- Deck Selector Chip Button -->
+                <button id="btnOpenDeckModal" class="px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high transition-all active:scale-95 flex items-center gap-1.5 text-xs border border-outline-variant/30 shadow-2xs group cursor-pointer" title="단어장(덱) 변경">
+                    <span class="material-symbols-outlined text-primary text-[16px]">folder</span>
+                    <strong id="currentDeckName" class="font-bold text-on-surface max-w-[90px] truncate">기본 덱</strong>
+                    <span id="currentDeckCountBadge" class="bg-primary/10 text-primary px-1.5 py-0.2 rounded-full font-bold text-[10px]">0</span>
+                    <span class="material-symbols-outlined text-on-surface-variant text-[14px]">expand_more</span>
+                </button>
+
+                <!-- Due / Review Count Badge -->
+                <button id="dueBadge" class="px-2.5 py-1.5 rounded-full bg-tertiary-fixed text-tertiary border border-tertiary-fixed-dim/40 text-xs font-bold flex items-center gap-1 hover:opacity-90 active:scale-95 transition-all cursor-pointer" title="오늘 복습할 문장">
+                    <span class="w-1.5 h-1.5 rounded-full bg-tertiary-container shadow-[0_0_6px_rgba(255,185,95,0.9)]"></span>
+                    <span><strong id="dueCount">0</strong></span>
                 </button>
 
                 <!-- Goal Button -->
-                <button id="btnGoalModal" class="p-2 sm:px-3 sm:py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-primary text-xs font-bold flex items-center gap-1 transition-all active:scale-95" title="학습 목표 및 스마트 페이스메이커">
-                    <span class="material-symbols-outlined text-[18px]">flag_circle</span>
-                    <span class="hidden sm:inline" id="goalBadgeText">목표</span>
+                <button id="btnGoalModal" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-95 cursor-pointer" title="학습 목표 및 스마트 페이스메이커">
+                    <span class="material-symbols-outlined text-[20px]">flag</span>
+                    <span class="hidden" id="goalBadgeText">목표</span>
                 </button>
 
-                <!-- Share Certificate Modal Button -->
-                <button id="btnOpenShareModal" class="p-2 sm:px-3 sm:py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold flex items-center gap-1 transition-all active:scale-95" title="오늘의 공부 인증 카드 만들기">
-                    <span class="material-symbols-outlined text-[18px]">add_to_photos</span>
-                    <span class="hidden sm:inline">인증</span>
-                </button>
+                <!-- Hidden references for backward compatibility -->
+                <span class="hidden" id="totalCount">0</span>
+                <span class="hidden" id="memorizedCount">0</span>
+                <button id="btnOpenShareModal" class="hidden"></button>
             </div>
         </div>
     </header>
 
     <!-- App Main Container -->
-    <main class="flex-grow w-full max-w-5xl mx-auto px-4 md:px-8 pt-4 app-bottom-space flex flex-col gap-4">
-        
-        <!-- Deck Selector & Daily Goal Bar Cluster -->
-        <section class="flex flex-col gap-3">
-            <div class="flex justify-between items-center flex-wrap gap-2">
-                <!-- Deck Selector Chip Button -->
-                <button id="btnOpenDeckModal" class="level-1-card px-4 py-2 rounded-xl flex items-center gap-2.5 hover:bg-surface-container-low transition-all active:scale-95 border border-outline-variant/30 shadow-sm group">
-                    <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">folder</span>
-                    <span class="text-xs text-on-surface-variant font-medium">학습 덱:</span>
-                    <strong id="currentDeckName" class="font-bold text-sm text-on-surface">기본 덱</strong>
-                    <span id="currentDeckCountBadge" class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-bold">0/0</span>
-                    <span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
-                </button>
+    <main class="flex-grow w-full max-w-3xl mx-auto px-4 md:px-6 pt-3 app-bottom-space flex flex-col gap-3">
+        <!-- Slim Daily Goal Progress Bar (Integrated) -->
+        <div id="goalProgressBarContainer" class="w-full bg-surface-container-low/70 rounded-full px-3 py-1.5 border border-outline-variant/20 flex items-center justify-between gap-3 text-xs">
+            <span id="goalTitleStr" class="font-semibold text-on-surface-variant text-[11px] flex items-center gap-1 truncate">
+                <span class="material-symbols-outlined text-[14px] text-primary">flag</span>
+                목표: 하루 10개
+            </span>
+            <div class="flex-1 max-w-[140px] h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="goalProgressBar" class="h-full bg-gradient-to-r from-primary to-secondary w-0 rounded-full transition-all duration-500"></div>
             </div>
-
-            <!-- Daily Goal Progress Banner -->
-            <div id="goalProgressBarContainer" class="w-full bg-surface-container-low rounded-xl p-3 border border-outline-variant/20 flex flex-col gap-1.5">
-                <div class="flex justify-between items-center text-xs">
-                    <span id="goalTitleStr" class="font-semibold text-on-surface-variant flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[16px] text-primary">flag</span>
-                        목표: 하루 10개
-                    </span>
-                    <span id="goalPercentStr" class="font-bold text-primary">0% 달성</span>
-                </div>
-                <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                    <div id="goalProgressBar" class="h-full bg-gradient-to-r from-primary to-secondary w-0 rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(70,72,212,0.3)]"></div>
-                </div>
-            </div>
-        </section>
+            <span id="goalPercentStr" class="font-bold text-primary text-[11px] whitespace-nowrap">0%</span>
+        </div>
 
         <!-- ==========================================================================
              TAB 1: Magic Omni-Collector (만능 스마트 문장 수집창)
@@ -313,70 +296,61 @@
              ========================================================================== -->
         <section id="tab-cards" class="tab-content flex flex-col items-center gap-4 active">
             <!-- Study Mode Header & Switcher Bar -->
-            <div class="w-full max-w-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="w-full flex items-center justify-between flex-wrap gap-2">
                 <!-- Left: View Mode Switcher (Card vs List) -->
-                <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/30">
-                    <button id="btnViewModeCard" class="px-3.5 py-1.5 rounded-xl bg-white shadow-sm text-primary font-extrabold text-xs flex items-center gap-1.5 transition-all">
+                <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/30 text-xs">
+                    <button id="btnViewModeCard" class="px-3.5 py-1.5 rounded-xl bg-white shadow-2xs text-primary font-extrabold flex items-center gap-1.5 transition-all cursor-pointer">
                         <span class="material-symbols-outlined text-[16px]">style</span>
                         <span>3D 카드</span>
                     </button>
-                    <button id="btnViewModeList" class="px-3.5 py-1.5 rounded-xl text-on-surface-variant hover:text-on-surface font-bold text-xs flex items-center gap-1.5 transition-all">
+                    <button id="btnViewModeList" class="px-3.5 py-1.5 rounded-xl text-on-surface-variant hover:text-on-surface font-bold flex items-center gap-1.5 transition-all cursor-pointer">
                         <span class="material-symbols-outlined text-[16px]">format_list_bulleted</span>
                         <span>스마트 리스트</span>
                     </button>
                 </div>
 
-                <!-- Right: Action Controls (Speed, Hint, Reset, Shuffle, TTS Rate) -->
-                <div class="flex items-center gap-1.5 self-end sm:self-auto">
-                    <button id="btnTtsRateToggle" class="px-2.5 py-1.5 rounded-xl border border-primary/30 text-primary hover:bg-primary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm" title="TTS 재생 속도 조절 (단축키: [ / ])">
-                        <span class="material-symbols-outlined text-[16px]">speed</span>
-                        <span id="ttsRateBadge">1.0x</span>
-                    </button>
-                    <button id="btnToggleSpeedTriage" class="px-2.5 py-1.5 rounded-xl border border-tertiary/30 text-tertiary hover:bg-tertiary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm" title="3초 스피드 메타인지 선별 모드">
-                        <span class="material-symbols-outlined text-[16px]">bolt</span>
+                <!-- Right: Action Controls -->
+                <div class="flex items-center gap-1.5">
+                    <button id="btnToggleSpeedTriage" class="px-2.5 py-1.5 rounded-xl border border-tertiary/30 text-tertiary hover:bg-tertiary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer" title="3초 스피드 메타인지 선별 모드">
+                        <span class="material-symbols-outlined text-[15px]">bolt</span>
                         <span id="speedTriageBtnText">3초 스피드</span>
                     </button>
-                    <button id="btnToggleGlobalHint" class="px-2.5 py-1.5 rounded-xl border border-primary/30 text-primary hover:bg-primary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm" title="첫 글자 힌트 사다리 토글">
-                        <span class="material-symbols-outlined text-[16px]">lightbulb</span>
+                    <button id="btnToggleGlobalHint" class="px-2.5 py-1.5 rounded-xl border border-primary/30 text-primary hover:bg-primary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer" title="첫 글자 힌트">
+                        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
                         <span id="globalHintBtnText">힌트</span>
                     </button>
-                    <button id="btnResetSession" class="p-1.5 sm:px-2 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95" title="세션 리셋">
-                        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
-                    </button>
-                    <button id="btnShuffleCards" class="p-1.5 sm:px-2 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95" title="순서 섞기">
+                    <button id="btnShuffleCards" class="p-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 cursor-pointer" title="순서 섞기">
                         <span class="material-symbols-outlined text-[16px]">shuffle</span>
+                    </button>
+                    <button id="btnTtsRateToggle" class="px-2 py-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 text-xs font-bold cursor-pointer" title="TTS 재생 속도 조절">
+                        <span id="ttsRateBadge" class="text-[11px]">1.0x</span>
+                    </button>
+                    <button id="btnResetSession" class="p-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 cursor-pointer" title="세션 리셋">
+                        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
                     </button>
                 </div>
             </div>
 
             <!-- Speed Triage Countdown Gauge (Common for both Card & List) -->
-            <div id="speedTriageGaugeWrapper" class="w-full max-w-xl h-1.5 bg-surface-container-highest rounded-full overflow-hidden hidden">
+            <div id="speedTriageGaugeWrapper" class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden hidden">
                 <div id="speedTriageGauge" class="h-full bg-gradient-to-r from-tertiary-fixed-dim to-error w-full rounded-full transition-all duration-100 ease-linear"></div>
             </div>
 
             <!-- ================= SUB-VIEW A: 3D Flashcard View ================= -->
-            <div id="studyViewCardContainer" class="w-full max-w-xl flex flex-col items-center gap-3">
+            <div id="studyViewCardContainer" class="w-full flex flex-col items-center gap-3">
                 <div class="w-full flex justify-between items-center text-xs px-1">
-                    <div class="flex items-center gap-2">
-                        <span id="cardProgress" class="px-3 py-1 rounded-full bg-surface-container text-on-surface font-semibold">0 / 0</span>
-                        <span id="cardLatencyBadge" class="latency-pill bg-surface-container-low text-on-surface-variant border border-outline-variant/30 hidden">
-                            <span class="material-symbols-outlined text-[14px] text-primary">timer</span>
-                            <span id="cardLatencyText">0.0s</span>
-                        </span>
-                    </div>
-                    <span id="sessionProgressBadge" class="px-3 py-1 rounded-full bg-tertiary-fixed text-tertiary font-bold flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">local_fire_department</span>
-                        <strong id="sessionQueueCount">0</strong>개 남음 (<span id="sessionCompletedStr">0/10</span>)
+                    <span id="cardProgress" class="font-bold text-on-surface-variant">0 / 0</span>
+                    <span id="cardLatencyBadge" class="latency-pill bg-surface-container-low text-on-surface-variant border border-outline-variant/30 hidden">
+                        <span class="material-symbols-outlined text-[14px] text-primary">timer</span>
+                        <span id="cardLatencyText">0.0s</span>
+                    </span>
+                    <span id="sessionProgressBadge" class="text-xs font-semibold text-on-surface-variant flex items-center gap-1">
+                        <strong id="sessionQueueCount" class="text-primary font-extrabold">0</strong>개 남음 (<span id="sessionCompletedStr">0/10</span>)
                     </span>
                 </div>
 
                 <!-- 3D Flashcard Container -->
                 <div class="relative w-full aspect-[4/3] sm:aspect-video perspective-1000" id="flashcard-wrapper">
-                    <!-- Floating Session Queue Badge -->
-                    <div class="absolute -top-3 -right-2 z-20 px-3 py-1 bg-inverse-surface text-inverse-on-surface rounded-full text-xs font-bold shadow-md transform rotate-2 pointer-events-none">
-                        오늘의 암기 루프
-                    </div>
-
                     <!-- Flashcard Inner -->
                     <div class="w-full h-full preserve-3d flip-card-inner cursor-pointer" id="flashcard">
                         <!-- Swipe Visual Overlays -->
@@ -384,24 +358,22 @@
                         <div class="swipe-overlay swipe-right-overlay opacity-0"><i class="fa-solid fa-check mr-2"></i> 암기 완료</div>
 
                         <!-- Front Face (Question: Korean Prompt Main) -->
-                        <div class="card-face card-front absolute inset-0 rounded-2xl flex flex-col justify-between p-6 sm:p-8 h-full w-full border border-outline-variant/30 shadow-[0_8px_32px_rgba(70,72,212,0.06)] bg-white">
+                        <div class="card-face card-front absolute inset-0 rounded-3xl flex flex-col justify-between p-6 sm:p-8 h-full w-full border border-outline-variant/30 shadow-[0_8px_32px_rgba(70,72,212,0.05)] bg-white">
                             <div class="flex justify-between items-center w-full gap-2">
                                 <div class="flex items-center gap-2">
-                                    <span id="cardStudyTypeBadge" class="px-3 py-1 rounded-full text-xs font-extrabold flex items-center gap-1 border shadow-xs">
-                                        ✨ 오늘 신규 1회차
+                                    <span id="cardStudyTypeBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-outline-variant/30 bg-surface-container-low text-on-surface-variant">
+                                        신규 문장
                                     </span>
-                                    <span class="text-xs font-semibold text-on-surface-variant/80 bg-surface-container-low px-2.5 py-1 rounded-full border border-outline-variant/30" id="cardCategory">Category</span>
+                                    <span class="text-[11px] font-semibold text-on-surface-variant/70 bg-surface-container-low px-2 py-0.5 rounded-full border border-outline-variant/20" id="cardCategory">Category</span>
                                 </div>
-                                <div class="flex items-center gap-1.5">
-                                    <button id="btnCardTTS" class="p-2.5 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-sm border border-primary/20 cursor-pointer" title="발음 듣기 (단축키: R / Space)">
-                                        <span class="material-symbols-outlined text-[20px]">volume_up</span>
-                                    </button>
-                                </div>
+                                <button id="btnCardTTS" class="p-2 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="발음 듣기 (단축키: R / Space)">
+                                    <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                                </button>
                             </div>
 
                             <!-- Korean Main Prompt -->
                             <div class="flex-grow flex flex-col items-center justify-center text-center px-2 py-3 gap-2">
-                                <span class="text-[11px] font-bold text-outline uppercase tracking-widest">한글 뜻을 보고 영어로 떠올려보세요</span>
+                                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">한글 뜻을 보고 영어로 떠올려보세요</span>
                                 <p class="font-extrabold text-2xl sm:text-3xl text-on-surface tracking-tight leading-relaxed" id="cardPromptKorean">
                                     뜻이 표기됩니다.
                                 </p>
@@ -410,7 +382,7 @@
                                 </p>
                             </div>
 
-                            <div class="w-full flex justify-between items-center text-xs text-on-surface-variant/70 font-medium pt-2 border-t border-outline-variant/20">
+                            <div class="w-full flex justify-between items-center text-xs text-on-surface-variant/70 font-medium pt-2 border-t border-outline-variant/15">
                                 <div class="flex items-center gap-1.5">
                                     <button id="btnFirstLetterHint" class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-amber-500/15 text-on-surface-variant transition-all text-xs font-bold flex items-center gap-1 cursor-pointer" title="첫 글자 힌트 (단축키: H)">
                                         <span class="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span> 힌트
@@ -419,17 +391,17 @@
                                         <span class="material-symbols-outlined text-[15px]">mic</span> 쉐도잉
                                     </button>
                                 </div>
-                                <span class="flex items-center gap-1 text-[11px]"><i class="fa-solid fa-hand-pointer text-primary"></i> 탭/Space로 정답 확인</span>
+                                <span class="flex items-center gap-1 text-[11px] text-on-surface-variant/60"><i class="fa-solid fa-hand-pointer text-primary/70"></i> 탭/Space로 정답 확인</span>
                             </div>
                         </div>
 
                         <!-- Back Face (Answer: English Full Sentence) -->
-                        <div class="card-face card-back absolute inset-0 rounded-2xl flex flex-col justify-between p-6 sm:p-8 h-full w-full border border-primary/20 shadow-[0_8px_32px_rgba(70,72,212,0.08)] bg-white">
+                        <div class="card-face card-back absolute inset-0 rounded-3xl flex flex-col justify-between p-6 sm:p-8 h-full w-full border border-primary/20 shadow-[0_8px_32px_rgba(70,72,212,0.08)] bg-white">
                             <div class="flex justify-between items-center w-full relative z-10">
-                                <div class="px-3 py-1 rounded-full bg-surface-container-low border border-primary/20 text-primary text-xs font-bold" id="cardReviewInfo">
+                                <div class="px-2.5 py-0.5 rounded-full bg-surface-container-low border border-primary/20 text-primary text-[11px] font-bold" id="cardReviewInfo">
                                     학습 현황
                                 </div>
-                                <span class="text-[11px] font-bold text-primary uppercase">Answer (정답)</span>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Answer</span>
                             </div>
 
                             <div class="flex-grow flex flex-col items-center justify-center text-center relative z-10 gap-2 px-2">
@@ -441,7 +413,7 @@
                                 </p>
                             </div>
 
-                            <div class="w-full text-center text-on-surface-variant/70 text-xs font-medium relative z-10">
+                            <div class="w-full text-center text-on-surface-variant/60 text-xs font-medium relative z-10">
                                 <i class="fa-solid fa-rotate mr-1"></i> 탭하여 다시 가리기
                             </div>
                         </div>
@@ -479,44 +451,29 @@
                     </div>
                 </div>
 
-                <!-- 3-Grade Assessment Controls (Hard / Good / Easy) -->
-                <div class="w-full grid grid-cols-3 gap-2.5 mt-1">
-                    <button id="btnGradeHard" class="py-3 px-3 rounded-2xl flex flex-col items-center justify-center gap-1 bg-red-50 text-red-700 hover:bg-red-100 active:scale-95 transition-all border border-red-200 shadow-sm cursor-pointer" title="단축키: 1">
-                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                            <span class="material-symbols-outlined text-lg font-bold">close</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <span class="font-extrabold text-xs">🔴 몰라요 (다시)</span>
-                            <span class="text-[10px] text-red-500 font-bold flex items-center gap-0.5 mt-0.5"><span class="kbd-key">1</span> 오늘 재도전</span>
-                        </div>
+                <!-- 3-Grade Assessment Controls (Clean Tactile Modern Layout) -->
+                <div class="w-full grid grid-cols-3 gap-2 mt-1">
+                    <button id="btnGradeHard" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-red-50/90 text-red-700 hover:bg-red-100 active:scale-95 transition-all border border-red-200/70 shadow-2xs cursor-pointer" title="단축키: 1">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                        <span class="font-bold text-xs">몰라요 <span class="kbd-key opacity-60">1</span></span>
                     </button>
-                    <button id="btnGradeGood" class="py-3 px-3 rounded-2xl flex flex-col items-center justify-center gap-1 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 active:scale-95 transition-all border border-indigo-200 shadow-sm cursor-pointer" title="단축키: 2">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700">
-                            <span class="material-symbols-outlined text-lg font-bold">check</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <span class="font-extrabold text-xs">🟡 알맞음 (기억남)</span>
-                            <span class="text-[10px] text-indigo-600 font-bold flex items-center gap-0.5 mt-0.5"><span class="kbd-key">2</span> 표준 복습</span>
-                        </div>
+                    <button id="btnGradeGood" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-indigo-50/90 text-indigo-700 hover:bg-indigo-100 active:scale-95 transition-all border border-indigo-200/70 shadow-2xs cursor-pointer" title="단축키: 2">
+                        <span class="material-symbols-outlined text-[18px]">check</span>
+                        <span class="font-bold text-xs">알맞음 <span class="kbd-key opacity-60">2</span></span>
                     </button>
-                    <button id="btnGradeEasy" class="py-3 px-3 rounded-2xl flex flex-col items-center justify-center gap-1 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all border border-emerald-200 shadow-sm cursor-pointer" title="단축키: 3">
-                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                            <span class="material-symbols-outlined text-lg font-bold">done_all</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <span class="font-extrabold text-xs">🟢 쉬움 (완벽)</span>
-                            <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-0.5"><span class="kbd-key">3</span> 쾌속 통과</span>
-                        </div>
+                    <button id="btnGradeEasy" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-emerald-50/90 text-emerald-700 hover:bg-emerald-100 active:scale-95 transition-all border border-emerald-200/70 shadow-2xs cursor-pointer" title="단축키: 3">
+                        <span class="material-symbols-outlined text-[18px]">done_all</span>
+                        <span class="font-bold text-xs">쉬움 <span class="kbd-key opacity-60">3</span></span>
                     </button>
                 </div>
 
-                <!-- Keyboard Shortcut Guide Bar -->
-                <div class="w-full flex items-center justify-center flex-wrap gap-2 text-[11px] text-on-surface-variant/80 py-2 border-t border-outline-variant/20 mt-1">
+                <!-- Keyboard Shortcut Guide Bar (Clean Single Line) -->
+                <div class="w-full flex items-center justify-center flex-wrap gap-2 text-[10px] text-on-surface-variant/60 py-1.5 border-t border-outline-variant/15 mt-1">
                     <span class="flex items-center gap-1"><span class="kbd-key">Space</span> 뒤집기</span>
                     <span class="flex items-center gap-1"><span class="kbd-key">1</span> 다시</span>
                     <span class="flex items-center gap-1"><span class="kbd-key">2</span> 알맞음</span>
                     <span class="flex items-center gap-1"><span class="kbd-key">3</span> 쉬움</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">R</span> 다시듣기</span>
+                    <span class="flex items-center gap-1"><span class="kbd-key">R</span> 발음</span>
                     <span class="flex items-center gap-1"><span class="kbd-key">S</span> 쉐도잉</span>
                 </div>
             </div>
@@ -1244,6 +1201,6 @@
     </script>
 
     <!-- Application Script -->
-    <script src="app.js?v=20260831_v25"></script>
+    <script src="app.js?v=20260831_v26"></script>
 </body>
 </html>
