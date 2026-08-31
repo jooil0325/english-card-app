@@ -2578,8 +2578,8 @@ class EngCardApp {
 
         if (dueList.length > 0 && this.goal.enableNotifications && 'Notification' in window) {
             if (Notification.permission === 'granted') {
-                new Notification('EngCard 에빙하우스 복습 알림', {
-                    body: `오늘 복습할 문장이 ${dueList.length}개 남아있습니다! 암기 상태를 유지하세요.`,
+                new Notification('TUK (툭) 에빙하우스 복습 알림', {
+                    body: `오늘 복습할 문장이 ${dueList.length}개 남아있습니다! Train • Unlock • Keep!`,
                     icon: 'https://cdn-icons-png.flaticon.com/512/3407/3407024.png'
                 });
             } else if (Notification.permission !== 'denied') {
@@ -2738,7 +2738,7 @@ class EngCardApp {
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `EngCard_Sentences_${getTodayString()}.csv`;
+        link.download = `TUK_Sentences_${getTodayString()}.csv`;
         link.click();
     }
 
@@ -3918,7 +3918,7 @@ class EngCardApp {
             const dateStr = getTodayString().replace(/-/g, '');
             const imageURI = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = `EngCard_StudyReport_${dateStr}.png`;
+            link.download = `TUK_StudyReport_${dateStr}.png`;
             link.href = imageURI;
             link.click();
             this.showToast('💾 인증 이미지가 다운로드되었습니다!', 'success');
@@ -3970,7 +3970,7 @@ class EngCardApp {
             praiseMsg = `오늘도 한 걸음 더 성장한 당신을 진심으로 응원합니다! 💪💖`;
         }
 
-        const shareText = `📚 [EngCard] 오늘의 메타인지 학습 리포트 (${todayStr})\n📁 학습 덱: ${currentDeckName}\n🎯 오늘 총 ${totalCount}개 문장 학습 (⚡ ${streakDays}일 연속)\n\n📊 [메타인지 분석]\n🟢 알았음: ${knownCount}개 (${knownPct}%)\n🟠 몰랐음/복습: ${reviewCount}개 (${reviewPct}%)\n\n📝 [오늘 학습한 전체 문장 목록] (총 ${totalCount}개)\n${fullListText}\n💌 [오늘의 응원]\n"${praiseMsg}"\n\n#EngCard #메타인지공부 #오늘의영어 #오공완 #공스타그램`;
+        const shareText = `⚡ [TUK] 오늘의 3초 즉시 인출 학습 리포트 (${todayStr})\n📁 학습 덱: ${currentDeckName}\n🎯 오늘 총 ${totalCount}개 문장 학습 (🔥 ${streakDays}일 연속)\n\n📊 [TUK 메타인지 분석]\n🟢 알았음(Unlock): ${knownCount}개 (${knownPct}%)\n🟠 복습필요(Keep): ${reviewCount}개 (${reviewPct}%)\n\n📝 [오늘 학습한 문장 목록] (총 ${totalCount}개)\n${fullListText}\n💌 [오늘의 응원]\n"${praiseMsg}"\n\n#TUK #툭영어 #TrainUnlockKeep #오공완 #공스타그램`;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(shareText).then(() => {
@@ -4003,7 +4003,7 @@ class EngCardApp {
 
             const todayStr = getTodayString().replace(/-/g, '.');
             const dateStr = getTodayString().replace(/-/g, '');
-            const fileName = `EngCard_StudyReport_${dateStr}.png`;
+            const fileName = `TUK_StudyReport_${dateStr}.png`;
 
             canvas.toBlob(async (blob) => {
                 if (!blob) {
@@ -4012,13 +4012,13 @@ class EngCardApp {
                 }
 
                 const file = new File([blob], fileName, { type: 'image/png' });
-                const textPayload = `📚 [EngCard] 오늘의 영어 공부 인증 (${todayStr})\n#EngCard #영어공부 #오늘의영어 #오공완`;
+                const textPayload = `⚡ [TUK] 오늘의 영어 공부 인증 (${todayStr})\n#TUK #툭영어 #영어문장암기 #TrainUnlockKeep #오공완`;
 
                 // 1. Mobile Web Share API with File (KakaoTalk, Instagram, AirDrop, Messages)
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
-                            title: 'EngCard 오늘의 학습 인증',
+                            title: 'TUK 오늘의 학습 인증',
                             text: textPayload,
                             files: [file]
                         });

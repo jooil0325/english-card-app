@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>EngCard - 영어 문장 암기장</title>
+    <title>TUK (툭) - Train • Unlock • Keep 영어 문장 암기장</title>
 
     <!-- Google Fonts & Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,9 +117,12 @@
     <header class="sticky w-full top-0 z-40 bg-surface/85 backdrop-blur-md shadow-xs border-b border-outline-variant/20 transition-all duration-300 safe-area-top">
         <div class="flex justify-between items-center px-4 md:px-8 py-2.5 w-full max-w-5xl mx-auto">
             <!-- Brand Logo -->
-            <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity active:scale-95">
-                <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">school</span>
-                <span class="font-extrabold text-2xl text-primary tracking-tight">EngCard</span>
+            <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity active:scale-95" onclick="window.app?.switchTab('tab-cards')">
+                <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                <div class="flex flex-col">
+                    <span class="font-extrabold text-2xl text-primary tracking-tight leading-none">TUK</span>
+                    <span class="text-[9px] font-bold text-on-surface-variant tracking-wider uppercase">Train • Unlock • Keep</span>
+                </div>
             </div>
 
             <!-- Stats & Quick Actions Header Cluster -->
@@ -993,12 +996,12 @@
                     <div class="flex flex-col gap-0.5">
                         <div class="flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span class="text-[11px] font-black tracking-wider uppercase text-emerald-400">EngCard Proof</span>
+                            <span class="text-[11px] font-black tracking-wider uppercase text-emerald-400">TUK Proof</span>
                         </div>
                         <span class="text-xs font-mono font-medium text-white/60" id="shareCardDate">2026.08.31</span>
                     </div>
                     <div class="flex flex-col items-end">
-                        <span class="text-[9px] font-bold text-white/50 uppercase tracking-widest">Deck</span>
+                        <span class="text-[9px] font-bold text-white/50 uppercase tracking-widest">TUK Record</span>
                         <span id="shareDeckNameStr" class="text-xs font-extrabold text-white bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 max-w-[130px] truncate">기본 덱</span>
                     </div>
                 </div>
@@ -1060,10 +1063,10 @@
 
                 <!-- 3. Footer: Verification Tag & Hashtags -->
                 <div class="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-white/50">
-                    <span class="tracking-wider">#EngCard #오공완 #영어공부</span>
+                    <span class="tracking-wider">#TUK #툭영어 #오공완 #영어문장암기</span>
                     <div class="flex items-center gap-1 font-bold text-white/70">
                         <span class="material-symbols-outlined text-[14px] text-emerald-400" style="font-variation-settings: 'FILL' 1;">verified</span>
-                        <span>VERIFIED RECORD</span>
+                        <span>TUK VERIFIED</span>
                     </div>
                 </div>
 
@@ -1241,6 +1244,6 @@
     </script>
 
     <!-- Application Script -->
-    <script src="app.js?v=20260831_v24"></script>
+    <script src="app.js?v=20260831_v25"></script>
 </body>
 </html>
