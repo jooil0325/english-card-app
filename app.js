@@ -685,13 +685,26 @@ class EngCardApp {
         this.btnExportCSV?.addEventListener('click', () => this.exportCSV());
         this.backupFileInput?.addEventListener('change', (e) => this.importBackup(e.target.files[0]));
 
-        // Quiz Buttons & Scope Listeners
+        // Quiz Buttons & Scope/Type Listeners
         this.btnStartQuiz?.addEventListener('click', () => this.startQuiz());
         this.btnExitQuiz?.addEventListener('click', () => this.exitQuiz());
         this.btnCheckQuiz?.addEventListener('click', () => this.checkQuizAnswer());
         this.btnNextQuiz?.addEventListener('click', () => this.nextQuizQuestion());
         document.querySelectorAll('input[name="quizScope"]').forEach(radio => {
             radio.addEventListener('change', () => this.updateQuizSetupUI());
+        });
+        document.querySelectorAll('input[name="quizType"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.quiz-type-btn').forEach(btn => {
+                    btn.classList.remove('bg-white', 'shadow-2xs', 'text-primary', 'font-bold');
+                    btn.classList.add('text-on-surface-variant', 'font-semibold');
+                });
+                const activeBtn = radio.closest('.quiz-type-btn');
+                if (activeBtn) {
+                    activeBtn.classList.add('bg-white', 'shadow-2xs', 'text-primary', 'font-bold');
+                    activeBtn.classList.remove('text-on-surface-variant', 'font-semibold');
+                }
+            });
         });
 
         // Smart Pacemaker (Goal Modal) Controls
@@ -2815,10 +2828,10 @@ class EngCardApp {
         const wrongCountEl = document.getElementById('quizScopeWrongCount');
         const allCountEl = document.getElementById('quizScopeAllCount');
 
-        if (studiedCountEl) studiedCountEl.textContent = `${studiedList.length}개 출제 가능`;
-        if (todayCountEl) todayCountEl.textContent = `${todayList.length}개 출제 가능`;
-        if (wrongCountEl) wrongCountEl.textContent = `${wrongList.length}개 출제 가능`;
-        if (allCountEl) allCountEl.textContent = `${allList.length}개 전체 출제`;
+        if (studiedCountEl) studiedCountEl.textContent = `${studiedList.length}개`;
+        if (todayCountEl) todayCountEl.textContent = `${todayList.length}개`;
+        if (wrongCountEl) wrongCountEl.textContent = `${wrongList.length}개`;
+        if (allCountEl) allCountEl.textContent = `${allList.length}개`;
 
         // Update visual active state on scope radio labels
         const scopeRadios = document.querySelectorAll('input[name="quizScope"]');
@@ -2826,10 +2839,10 @@ class EngCardApp {
             const label = radio.closest('label');
             if (!label) return;
             if (radio.checked) {
-                label.classList.add('border-primary/50', 'bg-primary/5');
+                label.classList.add('border-primary', 'bg-primary/5');
                 label.classList.remove('border-outline-variant/40');
             } else {
-                label.classList.remove('border-primary/50', 'bg-primary/5');
+                label.classList.remove('border-primary', 'bg-primary/5');
                 label.classList.add('border-outline-variant/40');
             }
         });
@@ -2905,6 +2918,11 @@ class EngCardApp {
     renderQuizQuestion() {
         const q = this.quizState.questions[this.quizState.currentIndex];
         this.quizScoreBadge.textContent = `문제 ${this.quizState.currentIndex + 1} / ${this.quizState.questions.length}`;
+        
+        const progressPct = ((this.quizState.currentIndex + 1) / this.quizState.questions.length) * 100;
+        const quizLinearProgress = document.getElementById('quizLinearProgress');
+        if (quizLinearProgress) quizLinearProgress.style.width = `${progressPct}%`;
+
         this.quizKorean.textContent = q.korean;
         this.quizFeedback.classList.add('hidden');
         this.btnCheckQuiz.classList.remove('hidden');
