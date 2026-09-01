@@ -886,24 +886,32 @@ class EngCardApp {
         }
     }
 
-    /* Single Tap & Drag Gesture Handler */
+    /* Single Tap & Drag Gesture Handler (Pointer Events for Mobile & Desktop) */
     initGestures() {
         const card = this.flashcard;
+        if (!card) return;
+
+        let activePointerId = null;
 
         const onPointerDown = (e) => {
             if (e.target.closest('button') || e.target.closest('#btnCardTTS') || e.target.closest('#btnFirstLetterHint') || e.target.closest('#btnVoiceRecite')) return;
-            this.touchState.startX = e.clientX || (e.touches && e.touches[0].clientX);
-            this.touchState.startY = e.clientY || (e.touches && e.touches[0].clientY);
-            this.touchState.currentX = this.touchState.startX;
-            this.touchState.currentY = this.touchState.startY;
+            if (activePointerId !== null) return; // Prevent multi-touch conflict
+
+            activePointerId = e.pointerId;
+            try { card.setPointerCapture(e.pointerId); } catch (err) {}
+
+            this.touchState.startX = e.clientX;
+            this.touchState.startY = e.clientY;
+            this.touchState.currentX = e.clientX;
+            this.touchState.currentY = e.clientY;
             this.touchState.isDragging = true;
             card.style.transition = 'none';
         };
 
         const onPointerMove = (e) => {
-            if (!this.touchState.isDragging) return;
-            this.touchState.currentX = e.clientX || (e.touches && e.touches[0].clientX);
-            this.touchState.currentY = e.clientY || (e.touches && e.touches[0].clientY);
+            if (!this.touchState.isDragging || e.pointerId !== activePointerId) return;
+            this.touchState.currentX = e.clientX;
+            this.touchState.currentY = e.clientY;
             const deltaX = this.touchState.currentX - this.touchState.startX;
 
             if (Math.abs(deltaX) > 10) {
@@ -923,13 +931,14 @@ class EngCardApp {
         };
 
         const onPointerUp = (e) => {
-            if (!this.touchState.isDragging) return;
+            if (!this.touchState.isDragging || e.pointerId !== activePointerId) return;
             this.touchState.isDragging = false;
+            activePointerId = null;
 
             const deltaX = this.touchState.currentX - this.touchState.startX;
             card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
 
-            // Single Tap flips the card
+            // Single Tap flips the card (movement < 10px)
             if (Math.abs(deltaX) < 10) {
                 card.style.transform = '';
                 this.triggerHaptic('light');
@@ -972,13 +981,20 @@ class EngCardApp {
             }
         };
 
-        card.addEventListener('mousedown', onPointerDown);
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
+        const onPointerCancel = (e) => {
+            if (e.pointerId === activePointerId) {
+                this.touchState.isDragging = false;
+                activePointerId = null;
+                card.style.transform = '';
+                this.overlayLeft.style.opacity = 0;
+                this.overlayRight.style.opacity = 0;
+            }
+        };
 
-        card.addEventListener('touchstart', onPointerDown, { passive: true });
-        card.addEventListener('touchmove', onPointerMove, { passive: true });
-        card.addEventListener('touchend', onPointerUp);
+        card.addEventListener('pointerdown', onPointerDown);
+        card.addEventListener('pointermove', onPointerMove);
+        card.addEventListener('pointerup', onPointerUp);
+        card.addEventListener('pointercancel', onPointerCancel);
     }
 
     addSentence(english, korean, category = '기타', source = 'manual', targetDeckId = null) {
@@ -1614,6 +1630,7 @@ class EngCardApp {
         // Reset and highlight active sprint card
         cards.forEach(c => c.classList.remove('ring-2', 'ring-primary', 'shadow-lg', 'bg-primary/5'));
         targetCard.classList.add('ring-2', 'ring-primary', 'shadow-lg');
+        targetCard.dataset.interactStartTime = Date.now().toString();
         targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         // Temporarily blur English text for active retrieval practice
@@ -1970,7 +1987,19 @@ class EngCardApp {
         const active = this.getActiveSentences();
         const today = getTodayString();
         const yesterday = getYesterdayString();
-        const dailyTargetCount = (this.goal && this.goal.dailyCount) ? parseInt(this.goal.dailyCount, 10) : 10;
+        
+        // Calculate daily target count based on goal mode (daily count vs period completion)
+        let targetLimit = 10;
+        if (this.goal) {
+            if (this.goal.type === 'period' && this.goal.targetDays) {
+                const totalTarget = parseInt(this.goal.totalCount, 10) || active.length;
+                const days = Math.max(parseInt(this.goal.targetDays, 10), 1);
+                targetLimit = Math.max(1, Math.ceil(totalTarget / days));
+            } else if (this.goal.dailyCount) {
+                targetLimit = Math.max(1, parseInt(this.goal.dailyCount, 10));
+            }
+        }
+        
         const reviewCap = (this.goal && this.goal.reviewCap !== undefined) ? parseInt(this.goal.reviewCap, 10) : 20;
 
         // 1. Due Review Sentences (Overdue SRS review, studied yesterday, or wrong >= 1)
@@ -1992,26 +2021,26 @@ class EngCardApp {
             return (a.nextReviewDate || '').localeCompare(b.nextReviewDate || '');
         });
 
-        const selectedReviews = (reviewCap > 0 && dueReviews.length > reviewCap)
-            ? dueReviews.slice(0, reviewCap)
-            : dueReviews;
-
+        // Review quota should not exceed reviewCap or overall targetLimit
+        const maxReviews = reviewCap > 0 ? Math.min(reviewCap, targetLimit) : targetLimit;
+        const selectedReviews = dueReviews.slice(0, maxReviews);
         const reviewIds = new Set(selectedReviews.map(s => s.id));
 
-        // 2. New Unstudied Sentences to fill up to dailyTargetCount
+        // 2. New Unstudied Sentences to fill up to targetLimit
         const unstudied = active.filter(s => !s.memorized && !reviewIds.has(s.id));
-        const neededNewCount = Math.max(0, dailyTargetCount - selectedReviews.length);
+        const neededNewCount = Math.max(0, targetLimit - selectedReviews.length);
         const selectedNew = unstudied.slice(0, neededNewCount);
 
-        // 3. Combine reviews + new intake (Strictly capped to daily focus size)
+        // 3. Combine reviews + new intake (Strictly capped to targetLimit)
         let focusList = [...selectedReviews, ...selectedNew];
 
-        // Fallback: If no reviews and no unstudied, but unmemorized items exist, take up to dailyTargetCount
+        // Fallback: If no reviews and no unstudied, but unmemorized items exist, take up to targetLimit
         if (focusList.length === 0 && active.some(s => !s.memorized)) {
-            focusList = active.filter(s => !s.memorized).slice(0, dailyTargetCount);
+            focusList = active.filter(s => !s.memorized).slice(0, targetLimit);
         }
 
-        return focusList;
+        // Guaranteed maximum count never exceeds targetLimit
+        return focusList.slice(0, targetLimit);
     }
 
     switchListScope(scope) {
@@ -2212,6 +2241,7 @@ class EngCardApp {
             const cardEl = document.createElement('div');
             cardEl.className = `swipe-card-item w-full rounded-2xl ${isSelected ? 'selected' : ''}`;
             cardEl.dataset.id = item.id;
+            cardEl.dataset.interactStartTime = Date.now().toString();
 
             const isRevealed = this.revealedItemIds.has(item.id);
 
@@ -2488,32 +2518,37 @@ class EngCardApp {
         let currentY = 0;
         let isDragging = false;
         let isHorizontalSwipe = false;
+        let rowTouchStartTime = Date.now();
+        let activeSwipePointerId = null;
 
         const onDown = (e) => {
-            if (e.target.closest('button') || e.target.closest('a')) return;
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            startX = clientX;
-            startY = clientY;
-            currentX = clientX;
-            currentY = clientY;
+            if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
+            if (activeSwipePointerId !== null) return;
+
+            activeSwipePointerId = e.pointerId;
+            try { innerEl.setPointerCapture(e.pointerId); } catch (err) {}
+
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = e.clientX;
+            currentY = e.clientY;
             isDragging = true;
             isHorizontalSwipe = false;
+            rowTouchStartTime = Date.now();
             innerEl.style.transition = 'none';
         };
 
         const onMove = (e) => {
-            if (!isDragging) return;
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            currentX = clientX;
-            currentY = clientY;
+            if (!isDragging || e.pointerId !== activeSwipePointerId) return;
+            currentX = e.clientX;
+            currentY = e.clientY;
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
 
             // Preserve vertical scroll if scrolling vertically
             if (!isHorizontalSwipe && Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
                 isDragging = false;
+                activeSwipePointerId = null;
                 return;
             }
 
@@ -2533,27 +2568,49 @@ class EngCardApp {
             }
         };
 
-        const onUp = () => {
-            if (!isDragging) return;
+        const onUp = (e) => {
+            if (!isDragging || e.pointerId !== activeSwipePointerId) return;
             isDragging = false;
-            const deltaX = currentX - startX;
+            activeSwipePointerId = null;
 
+            const deltaX = currentX - startX;
             innerEl.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
             if (deltaX > 60) {
-                // Swiped Right -> Known / Memorized
+                // Swiped Right -> Known / Memorized with Latency-Aware SRS Intervals
                 innerEl.style.transform = 'translateX(120%)';
                 cardEl.classList.add('dismissed');
+
+                const interactStart = parseInt(cardEl.dataset.interactStartTime, 10) || rowTouchStartTime;
+                const latencyMs = Math.max(Date.now() - interactStart, 100);
+                const latencySec = latencyMs / 1000;
+
                 setTimeout(() => {
                     item.memorized = true;
                     item.studyCount = (item.studyCount || 0) + 1;
                     item.lastStudiedAt = getTodayString();
-                    item.intervalStep = Math.min((item.intervalStep || 0) + 1, EBBINGHAUS_INTERVALS.length - 1);
-                    item.nextReviewDate = addDaysToDate(getTodayString(), EBBINGHAUS_INTERVALS[item.intervalStep]);
+
+                    if (latencySec >= 4.5) {
+                        // Hesitant recall: keep interval step, review again next day
+                        item.nextReviewDate = addDaysToDate(getTodayString(), 1);
+                        this.showToast(`✓ [망설임 감지] (${latencySec.toFixed(1)}s): 1일 후 복습`, 'info');
+                    } else if (latencySec < 2.0) {
+                        // Fast recall: fast-track SRS (+2 interval steps)
+                        item.intervalStep = Math.min((item.intervalStep || 0) + 2, EBBINGHAUS_INTERVALS.length - 1);
+                        const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
+                        item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
+                        this.showToast(`⚡ [Easy] 쾌속 통과! ${daysToAdd}일 후 복습 (${latencySec.toFixed(1)}s)`, 'success');
+                    } else {
+                        // Normal fluent recall: advance Ebbinghaus interval (+1 step)
+                        item.intervalStep = Math.min((item.intervalStep || 0) + 1, EBBINGHAUS_INTERVALS.length - 1);
+                        const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
+                        item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
+                        this.showToast(`✓ [Good] ${daysToAdd}일 후 복습 예정 (${latencySec.toFixed(1)}s)`, 'success');
+                    }
+
                     this.saveState();
                     this.renderSentenceList();
                     this.checkDeckMilestones(item.deckId || this.activeDeckId);
-                    this.showToast(`✓ [암기 완료] 다음 복습: ${item.nextReviewDate}`, 'success');
 
                     if (this.isSpeedTriageActive) {
                         this.startListSpeedSprint(this.listSprintCurrentIndex);
@@ -2596,13 +2653,20 @@ class EngCardApp {
             }
         };
 
-        innerEl.addEventListener('mousedown', onDown);
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
+        const onCancel = (e) => {
+            if (e.pointerId === activeSwipePointerId) {
+                isDragging = false;
+                activeSwipePointerId = null;
+                innerEl.style.transform = 'translateX(0px)';
+                overlayLeft.style.opacity = 0;
+                overlayRight.style.opacity = 0;
+            }
+        };
 
-        innerEl.addEventListener('touchstart', onDown, { passive: true });
-        innerEl.addEventListener('touchmove', onMove, { passive: true });
-        innerEl.addEventListener('touchend', onUp);
+        innerEl.addEventListener('pointerdown', onDown);
+        innerEl.addEventListener('pointermove', onMove);
+        innerEl.addEventListener('pointerup', onUp);
+        innerEl.addEventListener('pointercancel', onCancel);
     }
 
     /* Ebbinghaus Notification Check */
