@@ -2462,36 +2462,39 @@ class EngCardApp {
                     <span>암기 완료 (Mastered)</span>
                     <span class="material-symbols-outlined text-xl ml-2">check</span>
                 </div>
-                <div class="swipe-card-inner flex flex-col gap-2 p-4 bg-white rounded-2xl w-full border border-outline-variant/20 shadow-sm transition-all text-left">
-                    <div class="flex items-start justify-between gap-3 w-full">
-                        ${checkboxHtml}
-                        <div class="card-reorder-group flex flex-col gap-0.5 text-outline-variant flex-shrink-0 mt-0.5">
-                            <button class="btn-reorder btn-move-up p-0.5 hover:text-primary transition-colors" title="위로 이동"><span class="material-symbols-outlined text-[14px]">expand_less</span></button>
-                            <button class="btn-reorder btn-move-down p-0.5 hover:text-primary transition-colors" title="아래로 이동"><span class="material-symbols-outlined text-[14px]">expand_more</span></button>
-                        </div>
-                        <div class="card-text-wrapper flex-grow flex flex-col gap-1.5 cursor-pointer text-left min-w-0">
-                            <div class="flex items-center gap-1.5 text-left flex-wrap">
-                                <div class="w-2 h-2 rounded-full ${statusDotColor} flex-shrink-0"></div>
-                                ${studyTypeBadgeHtml}
-                                ${srsBadgeHtml}
-                                <span class="text-[10px] font-semibold text-on-surface-variant/80 bg-surface-container-low px-2 py-0.5 rounded-md border border-outline-variant/30">${item.category}</span>
+                <div class="swipe-card-inner flex flex-col gap-2 p-3.5 sm:p-4 bg-white rounded-2xl w-full border border-outline-variant/20 shadow-sm transition-all text-left">
+                    <!-- Top Row: Category & Badges on Left + Action Icons on Right -->
+                    <div class="flex items-center justify-between gap-2 w-full">
+                        <div class="flex items-center gap-1.5 text-left flex-wrap min-w-0">
+                            ${checkboxHtml}
+                            <div class="card-reorder-group flex items-center text-outline-variant flex-shrink-0">
+                                <button class="btn-reorder btn-move-up p-0.5 hover:text-primary transition-colors" title="위로 이동"><span class="material-symbols-outlined text-[14px]">expand_less</span></button>
+                                <button class="btn-reorder btn-move-down p-0.5 hover:text-primary transition-colors" title="아래로 이동"><span class="material-symbols-outlined text-[14px]">expand_more</span></button>
                             </div>
-                            ${textBlocksHtml}
+                            <div class="w-2 h-2 rounded-full ${statusDotColor} flex-shrink-0"></div>
+                            ${studyTypeBadgeHtml}
+                            ${srsBadgeHtml}
+                            <span class="text-[10px] font-semibold text-on-surface-variant/80 bg-surface-container-low px-2 py-0.5 rounded-md border border-outline-variant/30">${item.category}</span>
                         </div>
 
-                        <!-- Action Toolset (Hint, Voice, TTS, Delete) - Right aligned -->
-                        <div class="flex items-center justify-end gap-1 flex-shrink-0 ml-auto self-start mt-0.5">
+                        <!-- Action Toolset (Hint, Voice, TTS, Delete) - Top-right aligned -->
+                        <div class="flex items-center justify-end gap-0.5 flex-shrink-0 ml-auto">
                             <button class="btn-item-hint p-1.5 ${hintBtnClass} rounded-lg transition-all" title="첫 글자 힌트">
-                                <span class="material-symbols-outlined text-[18px]">lightbulb</span>
+                                <span class="material-symbols-outlined text-[17px]">lightbulb</span>
                             </button>
                             <button class="btn-item-voice p-1.5 text-outline-variant hover:text-secondary hover:bg-secondary-container/40 rounded-lg transition-all" title="발음 쉐도잉 평가">
-                                <span class="material-symbols-outlined text-[18px]">mic</span>
+                                <span class="material-symbols-outlined text-[17px]">mic</span>
                             </button>
                             <button class="btn-item-tts p-1.5 text-outline-variant hover:text-primary hover:bg-primary-fixed/40 rounded-lg transition-all" title="발음 듣기">
-                                <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                                <span class="material-symbols-outlined text-[17px]">volume_up</span>
                             </button>
                             ${deleteBtnHtml}
                         </div>
+                    </div>
+
+                    <!-- Full-Width Sentence Text Area -->
+                    <div class="card-text-wrapper w-full flex flex-col gap-1 cursor-pointer text-left">
+                        ${textBlocksHtml}
                     </div>
                 </div>
             `;
