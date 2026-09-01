@@ -525,6 +525,10 @@ body {
     padding: 2px 8px;
     border-radius: 9999px;
     display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* Share Card Editorial Themes */
 .share-card-theme-dark {
     background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
@@ -623,16 +627,20 @@ body {
 
 /* Material 3 Bottom Navigation Bar */
 .bottom-nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 40;
-    background: rgba(250, 248, 255, 0.92);
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    background: rgba(250, 248, 255, 0.95) !important;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(199, 196, 215, 0.3);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid rgba(199, 196, 215, 0.35) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    box-shadow: 0 -4px 20px rgba(70, 72, 212, 0.05);
 }
 
 .nav-tab-btn {
