@@ -17,8 +17,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- TUK Master Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=20260831_v7">
+    <!-- TUK Master Stylesheet (Cache-Busting) -->
+    <link rel="stylesheet" href="style.css?v=20260901_v201">
+    <style>
+        .bottom-nav-bar {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 99999 !important;
+            display: flex !important;
+            justify-content: space-around !important;
+            align-items: center !important;
+            background: rgba(250, 248, 255, 0.96) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(199, 196, 215, 0.35) !important;
+            padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)) 8px !important;
+            box-shadow: 0 -4px 20px rgba(70, 72, 212, 0.06) !important;
+        }
+        .nav-tab-btn {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 2px !important;
+            padding: 6px 0 4px 0 !important;
+            color: #464554 !important;
+            cursor: pointer !important;
+        }
+        .nav-tab-btn .nav-icon-pill {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 48px !important;
+            height: 28px !important;
+            border-radius: 9999px !important;
+        }
+        .nav-tab-btn.active .nav-icon-pill {
+            background-color: #e1e0ff !important;
+            color: #4648d4 !important;
+        }
+        .nav-tab-btn.active .nav-label {
+            color: #4648d4 !important;
+            font-weight: 800 !important;
+        }
+        .nav-tab-btn .nav-label {
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.01em !important;
+        }
+    </style>
 
     <!-- Tailwind CSS Core -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -852,7 +901,7 @@
     <!-- ==========================================================================
          Material Design 3 Bottom Navigation Bar
          ========================================================================== -->
-    <nav class="bottom-nav-bar fixed bottom-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-t border-outline-variant/30 flex justify-around items-center px-2 py-1 safe-area-bottom">
+    <nav class="bottom-nav-bar fixed bottom-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-t border-outline-variant/30 flex justify-around items-center px-2 py-1 safe-area-bottom" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 99999 !important; display: flex !important; justify-content: space-around !important; align-items: center !important;">
         <button class="nav-tab-btn active w-20 cursor-pointer" data-tab="tab-cards" onclick="window.app?.switchTab('tab-cards')">
             <div class="nav-icon-pill">
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">layers</span>
@@ -1184,7 +1233,7 @@
         });
     </script>
 
-    <!-- Application Script -->
-    <script src="app.js?v=20260831_v31"></script>
+    <!-- Application Script (Cache-Busting) -->
+    <script src="app.js?v=20260901_v201"></script>
 </body>
 </html>
