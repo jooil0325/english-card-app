@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- TUK Master Stylesheet (Cache-Busting) -->
-    <link rel="stylesheet" href="style.css?v=20260901_v203">
+    <link rel="stylesheet" href="style.css?v=20260902_v1">
     <style>
         .bottom-nav-bar {
             position: fixed !important;
@@ -476,28 +476,18 @@
 
                 <!-- 3-Grade Assessment Controls (Clean Tactile Modern Layout) -->
                 <div class="w-full grid grid-cols-3 gap-2 mt-1">
-                    <button id="btnGradeHard" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-red-50/90 text-red-700 hover:bg-red-100 active:scale-95 transition-all border border-red-200/70 shadow-2xs cursor-pointer" title="단축키: 1">
+                    <button id="btnGradeHard" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-red-50/90 text-red-700 hover:bg-red-100 active:scale-95 transition-all border border-red-200/70 shadow-2xs cursor-pointer" title="모름 (오늘 다시 복습)">
                         <span class="material-symbols-outlined text-[18px]">close</span>
-                        <span class="font-bold text-xs">몰라요 <span class="kbd-key opacity-60">1</span></span>
+                        <span class="font-bold text-xs">몰라요</span>
                     </button>
-                    <button id="btnGradeGood" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-indigo-50/90 text-indigo-700 hover:bg-indigo-100 active:scale-95 transition-all border border-indigo-200/70 shadow-2xs cursor-pointer" title="단축키: 2">
+                    <button id="btnGradeGood" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-indigo-50/90 text-indigo-700 hover:bg-indigo-100 active:scale-95 transition-all border border-indigo-200/70 shadow-2xs cursor-pointer" title="알맞음 (복습 주기 적용)">
                         <span class="material-symbols-outlined text-[18px]">check</span>
-                        <span class="font-bold text-xs">알맞음 <span class="kbd-key opacity-60">2</span></span>
+                        <span class="font-bold text-xs">알맞음</span>
                     </button>
-                    <button id="btnGradeEasy" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-emerald-50/90 text-emerald-700 hover:bg-emerald-100 active:scale-95 transition-all border border-emerald-200/70 shadow-2xs cursor-pointer" title="단축키: 3">
+                    <button id="btnGradeEasy" class="py-3 px-2 rounded-2xl flex items-center justify-center gap-1.5 bg-emerald-50/90 text-emerald-700 hover:bg-emerald-100 active:scale-95 transition-all border border-emerald-200/70 shadow-2xs cursor-pointer" title="쉬움 (빠른 진급)">
                         <span class="material-symbols-outlined text-[18px]">done_all</span>
-                        <span class="font-bold text-xs">쉬움 <span class="kbd-key opacity-60">3</span></span>
+                        <span class="font-bold text-xs">쉬움</span>
                     </button>
-                </div>
-
-                <!-- Keyboard Shortcut Guide Bar (Clean Single Line) -->
-                <div class="w-full flex items-center justify-center flex-wrap gap-2 text-[10px] text-on-surface-variant/60 py-1.5 border-t border-outline-variant/15 mt-1">
-                    <span class="flex items-center gap-1"><span class="kbd-key">Space</span> 뒤집기</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">1</span> 다시</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">2</span> 알맞음</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">3</span> 쉬움</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">R</span> 발음</span>
-                    <span class="flex items-center gap-1"><span class="kbd-key">S</span> 쉐도잉</span>
                 </div>
             </div>
 
@@ -1234,6 +1224,6 @@
     </script>
 
     <!-- Application Script (Cache-Busting) -->
-    <script src="app.js?v=20260901_v203"></script>
+    <script src="app.js?v=20260902_v1"></script>
 </body>
 </html>

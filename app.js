@@ -1840,7 +1840,14 @@ class EngCardApp {
         if (this.cardPromptKorean) this.cardPromptKorean.textContent = current.korean;
         this.cardEnglish.textContent = current.english;
         this.cardKorean.textContent = current.korean;
-        this.cardCategory.textContent = `${current.category} ${current.memorized ? '✓' : ''}`;
+        if (this.cardCategory) {
+            if (current.category && current.category !== '스크랩' && current.category !== '기타') {
+                this.cardCategory.textContent = `${current.category} ${current.memorized ? '✓' : ''}`;
+                this.cardCategory.classList.remove('hidden');
+            } else {
+                this.cardCategory.classList.add('hidden');
+            }
+        }
 
         const studyCount = Math.max(current.studyCount || 0, (current.wrongCount || 0) + (current.lastStudiedAt ? 1 : 0));
         const isNew = (!current.lastStudiedAt && (current.studyCount || 0) === 0 && (current.wrongCount || 0) === 0);
