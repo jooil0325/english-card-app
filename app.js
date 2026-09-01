@@ -886,60 +886,78 @@ class EngCardApp {
         }
     }
 
-    /* Single Tap & Drag Gesture Handler (Pointer Events for Mobile & Desktop) */
+    /* Single Tap & Drag Gesture Handler (Mobile Touch & Desktop Mouse) */
     initGestures() {
         const card = this.flashcard;
         if (!card) return;
 
-        let activePointerId = null;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let isHorizontalSwipe = false;
+        let lastTouchEndTime = 0;
 
-        const onPointerDown = (e) => {
+        // --- Touch Event Handlers (Mobile) ---
+        const onTouchStart = (e) => {
             if (e.target.closest('button') || e.target.closest('#btnCardTTS') || e.target.closest('#btnFirstLetterHint') || e.target.closest('#btnVoiceRecite')) return;
-            if (activePointerId !== null) return; // Prevent multi-touch conflict
-
-            activePointerId = e.pointerId;
-            try { card.setPointerCapture(e.pointerId); } catch (err) {}
-
-            this.touchState.startX = e.clientX;
-            this.touchState.startY = e.clientY;
-            this.touchState.currentX = e.clientX;
-            this.touchState.currentY = e.clientY;
-            this.touchState.isDragging = true;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            currentX = touch.clientX;
+            currentY = touch.clientY;
+            isDragging = true;
+            isHorizontalSwipe = false;
             card.style.transition = 'none';
         };
 
-        const onPointerMove = (e) => {
-            if (!this.touchState.isDragging || e.pointerId !== activePointerId) return;
-            this.touchState.currentX = e.clientX;
-            this.touchState.currentY = e.clientY;
-            const deltaX = this.touchState.currentX - this.touchState.startX;
+        const onTouchMove = (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            currentX = touch.clientX;
+            currentY = touch.clientY;
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
 
-            if (Math.abs(deltaX) > 10) {
-                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
+            // Determine if horizontal swipe
+            if (!isHorizontalSwipe && Math.abs(deltaX) > 8) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    isHorizontalSwipe = true;
+                } else {
+                    isDragging = false;
+                    return;
+                }
             }
 
-            if (deltaX > 40) {
-                this.overlayRight.style.opacity = Math.min((deltaX - 40) / 80, 1);
-                this.overlayLeft.style.opacity = 0;
-            } else if (deltaX < -40) {
-                this.overlayLeft.style.opacity = Math.min((-deltaX - 40) / 80, 1);
-                this.overlayRight.style.opacity = 0;
-            } else {
-                this.overlayLeft.style.opacity = 0;
-                this.overlayRight.style.opacity = 0;
+            if (isHorizontalSwipe) {
+                if (e.cancelable) e.preventDefault(); // Prevent mobile browser default gesture / scroll
+                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
+
+                if (deltaX > 40) {
+                    this.overlayRight.style.opacity = Math.min((deltaX - 40) / 80, 1);
+                    this.overlayLeft.style.opacity = 0;
+                } else if (deltaX < -40) {
+                    this.overlayLeft.style.opacity = Math.min((-deltaX - 40) / 80, 1);
+                    this.overlayRight.style.opacity = 0;
+                } else {
+                    this.overlayLeft.style.opacity = 0;
+                    this.overlayRight.style.opacity = 0;
+                }
             }
         };
 
-        const onPointerUp = (e) => {
-            if (!this.touchState.isDragging || e.pointerId !== activePointerId) return;
-            this.touchState.isDragging = false;
-            activePointerId = null;
+        const onTouchEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            lastTouchEndTime = Date.now();
 
-            const deltaX = this.touchState.currentX - this.touchState.startX;
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
             card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
 
-            // Single Tap flips the card (movement < 10px)
-            if (Math.abs(deltaX) < 10) {
+            // Single Tap (movement < 10px in both X and Y)
+            if (Math.abs(deltaX) < 12 && Math.abs(deltaY) < 12) {
                 card.style.transform = '';
                 this.triggerHaptic('light');
                 card.classList.toggle('flipped');
@@ -948,8 +966,8 @@ class EngCardApp {
                 return;
             }
 
-            // Swipe Threshold (80px)
-            if (deltaX > 80) {
+            // Swipe Threshold (60px)
+            if (deltaX > 60) {
                 // Swiped Right -> Know / Memorized
                 this.triggerHaptic('medium');
                 card.style.transform = 'translateX(400px) rotate(30deg)';
@@ -961,7 +979,7 @@ class EngCardApp {
                     card.style.opacity = '1';
                     this.overlayRight.style.opacity = 0;
                 }, 300);
-            } else if (deltaX < -80) {
+            } else if (deltaX < -60) {
                 // Swiped Left -> Don't know / Unmemorized
                 this.triggerHaptic('heavy');
                 card.style.transform = 'translateX(-400px) rotate(-30deg)';
@@ -981,20 +999,101 @@ class EngCardApp {
             }
         };
 
-        const onPointerCancel = (e) => {
-            if (e.pointerId === activePointerId) {
-                this.touchState.isDragging = false;
-                activePointerId = null;
+        const onTouchCancel = () => {
+            isDragging = false;
+            card.style.transform = '';
+            this.overlayLeft.style.opacity = 0;
+            this.overlayRight.style.opacity = 0;
+        };
+
+        // --- Mouse Event Handlers (Desktop) ---
+        const onMouseDown = (e) => {
+            if (Date.now() - lastTouchEndTime < 600) return; // Ignore synthetic mouse events after touch
+            if (e.target.closest('button') || e.target.closest('#btnCardTTS') || e.target.closest('#btnFirstLetterHint') || e.target.closest('#btnVoiceRecite')) return;
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            isDragging = true;
+            isHorizontalSwipe = false;
+            card.style.transition = 'none';
+        };
+
+        const onMouseMove = (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            const deltaX = currentX - startX;
+
+            if (Math.abs(deltaX) > 10) {
+                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
+            }
+
+            if (deltaX > 40) {
+                this.overlayRight.style.opacity = Math.min((deltaX - 40) / 80, 1);
+                this.overlayLeft.style.opacity = 0;
+            } else if (deltaX < -40) {
+                this.overlayLeft.style.opacity = Math.min((-deltaX - 40) / 80, 1);
+                this.overlayRight.style.opacity = 0;
+            } else {
+                this.overlayLeft.style.opacity = 0;
+                this.overlayRight.style.opacity = 0;
+            }
+        };
+
+        const onMouseUp = () => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const deltaX = currentX - startX;
+            card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+
+            if (Math.abs(deltaX) < 10) {
+                card.style.transform = '';
+                this.triggerHaptic('light');
+                card.classList.toggle('flipped');
+                this.overlayLeft.style.opacity = 0;
+                this.overlayRight.style.opacity = 0;
+                return;
+            }
+
+            if (deltaX > 80) {
+                this.triggerHaptic('medium');
+                card.style.transform = 'translateX(400px) rotate(30deg)';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    this.markCurrentCard(true);
+                    card.style.transition = 'none';
+                    card.style.transform = '';
+                    card.style.opacity = '1';
+                    this.overlayRight.style.opacity = 0;
+                }, 300);
+            } else if (deltaX < -80) {
+                this.triggerHaptic('heavy');
+                card.style.transform = 'translateX(-400px) rotate(-30deg)';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    this.markCurrentCard(false);
+                    card.style.transition = 'none';
+                    card.style.transform = '';
+                    card.style.opacity = '1';
+                    this.overlayLeft.style.opacity = 0;
+                }, 300);
+            } else {
                 card.style.transform = '';
                 this.overlayLeft.style.opacity = 0;
                 this.overlayRight.style.opacity = 0;
             }
         };
 
-        card.addEventListener('pointerdown', onPointerDown);
-        card.addEventListener('pointermove', onPointerMove);
-        card.addEventListener('pointerup', onPointerUp);
-        card.addEventListener('pointercancel', onPointerCancel);
+        card.addEventListener('touchstart', onTouchStart, { passive: true });
+        card.addEventListener('touchmove', onTouchMove, { passive: false }); // passive: false enables preventDefault for horizontal swipe
+        card.addEventListener('touchend', onTouchEnd);
+        card.addEventListener('touchcancel', onTouchCancel);
+
+        card.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
     }
 
     addSentence(english, korean, category = '기타', source = 'manual', targetDeckId = null) {
