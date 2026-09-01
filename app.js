@@ -2474,7 +2474,7 @@ class EngCardApp {
                             <div class="w-2 h-2 rounded-full ${statusDotColor} flex-shrink-0"></div>
                             ${studyTypeBadgeHtml}
                             ${srsBadgeHtml}
-                            <span class="text-[10px] font-semibold text-on-surface-variant/80 bg-surface-container-low px-2 py-0.5 rounded-md border border-outline-variant/30">${item.category}</span>
+                            ${(item.category && item.category !== '스크랩' && item.category !== '기타') ? `<span class="text-[10px] font-semibold text-on-surface-variant/80 bg-surface-container-low px-2 py-0.5 rounded-md border border-outline-variant/30">${item.category}</span>` : ''}
                         </div>
 
                         <!-- Action Toolset (Hint, Voice, TTS, Delete) - Top-right aligned -->
