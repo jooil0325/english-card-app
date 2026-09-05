@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- TUK Master Stylesheet (Cache-Busting) -->
-    <link rel="stylesheet" href="style.css?v=20260902_v1">
+    <link rel="stylesheet" href="style.css?v=20260902_v2">
     <style>
         .bottom-nav-bar {
             position: fixed !important;
@@ -192,13 +192,14 @@
                     <span><strong id="dueCount">0</strong></span>
                 </button>
 
-                <!-- Goal Button -->
-                <button id="btnGoalModal" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-95 cursor-pointer" title="학습 목표 및 스마트 페이스메이커">
-                    <span class="material-symbols-outlined text-[20px]">flag</span>
-                    <span class="hidden" id="goalBadgeText">목표</span>
+                <!-- Settings Button -->
+                <button id="btnOpenSettingsModal" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-95 cursor-pointer" title="환경설정 (학습 목표, 발음, 백업, 단축키)">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
                 </button>
 
                 <!-- Hidden references for backward compatibility -->
+                <button id="btnOpenShortcutsModal" class="hidden"></button>
+                <button id="btnGoalModal" class="hidden"></button>
                 <span class="hidden" id="totalCount">0</span>
                 <span class="hidden" id="memorizedCount">0</span>
                 <button id="btnOpenShareModal" class="hidden"></button>
@@ -224,32 +225,65 @@
              TAB 1: Magic Omni-Collector (ChatGPT / Apple Notes Style Smart Input)
              ========================================================================== -->
         <section id="tab-add" class="tab-content flex-col gap-4 hidden">
+            <!-- Clipboard Smart Radar Banner (Dynamically shown when clipboard text detected) -->
+            <div id="clipboardRadarBanner" class="hidden flex items-center justify-between gap-2 p-2.5 bg-primary/10 border border-primary/30 rounded-2xl text-xs animate-fade-in-up">
+                <div class="flex items-center gap-2 overflow-hidden flex-grow cursor-pointer" id="clipboardRadarClickArea">
+                    <span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0">content_paste_go</span>
+                    <span class="font-bold text-primary flex-shrink-0">클립보드 감지:</span>
+                    <span class="text-on-surface truncate font-semibold text-xs" id="clipboardRadarPreview">"..."</span>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <button id="btnClipboardRadarApply" type="button" class="px-2.5 py-1 bg-primary text-white rounded-xl text-[11px] font-bold shadow-xs active:scale-95 cursor-pointer">입력</button>
+                    <button id="btnClipboardRadarDismiss" type="button" class="p-1 text-on-surface-variant hover:text-on-surface rounded-lg cursor-pointer" title="닫기">
+                        <span class="material-symbols-outlined text-[15px]">close</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Sleek Integrated Smart Card -->
             <div class="bg-surface rounded-3xl p-5 sm:p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-3 relative focus-within:border-primary/50 focus-within:shadow-md transition-all" id="omniDropCard">
                 
-                <!-- Card Header: Target Deck Selector Chip & Mode Badge -->
-                <div class="flex items-center justify-between text-xs pb-2 border-b border-outline-variant/15">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                <!-- Card Header: Target Deck Selector Chips & Mode Badge -->
+                <div class="flex items-center justify-between gap-2 text-xs pb-2 border-b border-outline-variant/15 flex-nowrap">
+                    <!-- Deck Horizontal Scroll Area -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-grow min-w-0" id="smartDeckChipScrollArea">
+                        <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1 flex-shrink-0">
                             <span class="material-symbols-outlined text-primary text-[16px]">folder</span>
-                            저장:
+                            덱:
                         </span>
-                        <select id="selectSmartDeck" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-bold text-primary focus:ring-1 focus:ring-primary cursor-pointer">
-                            <option value="deck_default">기본 덱</option>
-                        </select>
-                        <select id="selectSmartCategory" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-semibold text-on-surface-variant focus:ring-1 focus:ring-primary cursor-pointer">
+                        <!-- Dynamic Chips List -->
+                        <div id="smartDeckChipsList" class="flex items-center gap-1 flex-shrink-0"></div>
+                        <!-- Inline New Deck Trigger -->
+                        <button id="btnInlineNewDeckTrigger" type="button" class="flex items-center gap-1 px-2 py-0.5 rounded-lg border border-dashed border-outline-variant/60 text-on-surface-variant hover:text-primary hover:border-primary text-[11px] font-bold transition-all flex-shrink-0 active:scale-95 cursor-pointer">
+                            <span class="material-symbols-outlined text-[13px]">add</span>새 덱
+                        </button>
+                        <!-- Inline New Deck Form -->
+                        <div id="inlineNewDeckForm" class="hidden items-center gap-1 flex-shrink-0">
+                            <input type="text" id="inlineNewDeckInput" placeholder="새 덱 이름" class="w-24 px-2 py-0.5 text-xs rounded-lg border border-primary bg-surface font-semibold focus:outline-none" autocomplete="off">
+                            <button id="btnConfirmInlineNewDeck" type="button" class="px-2 py-0.5 bg-primary text-white rounded-lg text-[11px] font-bold active:scale-95 cursor-pointer">확인</button>
+                            <button id="btnCancelInlineNewDeck" type="button" class="p-0.5 text-on-surface-variant hover:text-on-surface cursor-pointer"><span class="material-symbols-outlined text-[14px]">close</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Category Select + Mode Badge -->
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <select id="selectSmartCategory" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant focus:ring-1 focus:ring-primary cursor-pointer">
                             <option value="일상 회화">일상 회화</option>
                             <option value="비즈니스">비즈니스</option>
                             <option value="여행">여행</option>
                             <option value="패턴/관용구">패턴/관용구</option>
                             <option value="기타">기타</option>
                         </select>
+                        <span id="omniDetectedModeBadge" class="text-[11px] font-bold text-primary/80 hidden sm:flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                            <span id="omniModeText">스마트 감지</span>
+                        </span>
                     </div>
 
-                    <span id="omniDetectedModeBadge" class="text-[11px] font-bold text-primary/80 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
-                        <span id="omniModeText">스마트 감지</span>
-                    </span>
+                    <!-- Hidden select for full backward compatibility -->
+                    <select id="selectSmartDeck" class="hidden">
+                        <option value="deck_default">기본 덱</option>
+                    </select>
                 </div>
 
                 <!-- Live Voice Recording Ribbon (Only visible while recording) -->
@@ -266,20 +300,20 @@
                 </div>
 
                 <!-- The Smart Input Textarea -->
-                <textarea id="smartCaptureInput" class="w-full bg-transparent border-0 p-1 text-base font-semibold text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none transition-all leading-relaxed resize-y min-h-[110px]" placeholder="외우고 싶은 영어 문장, 단어, 뜻, 유튜브 링크를 입력하세요...&#10;(단어/문장을 넣으면 뜻과 예문을 자동으로 완성해 드립니다)" autocomplete="off"></textarea>
-                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.pdf,.txt,.json,.epub" class="hidden">
+                <textarea id="smartCaptureInput" class="w-full bg-transparent border-0 p-1 text-base font-semibold text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none transition-all leading-relaxed resize-y min-h-[110px]" placeholder="외우고 싶은 영어 문장, 단어, 뜻, 유튜브 링크를 입력하세요...&#10;(사진 파일이나 스크린샷을 붙여넣으면 OCR로 문장을 자동 추출합니다)" autocomplete="off"></textarea>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.tsv,.pdf,.txt,.json,.epub,.png,.jpg,.jpeg,.webp,.bmp,.gif,image/*" class="hidden">
 
                 <!-- Bottom Toolbar: Minimal Action Icons + Submit Arrow Button -->
                 <div class="flex items-center justify-between pt-2 border-t border-outline-variant/15">
                     <!-- Left Quick Action Tool Icons -->
                     <div class="flex items-center gap-1">
-                        <button id="btnPasteClipboard" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="클립보드 붙여넣기">
+                        <button id="btnPasteClipboard" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="클립보드 붙여넣기 (텍스트 & 화면 캡처 이미지)">
                             <span class="material-symbols-outlined text-[20px]">content_paste</span>
                         </button>
                         <button id="btnSmartVoiceMic" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="음성 입력 (마이크)">
                             <span class="material-symbols-outlined text-[20px]" id="smartVoiceMicIcon">mic</span>
                         </button>
-                        <button id="btnTriggerFileUpload" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="파일 첨부 (엑셀, CSV, TXT, PDF)">
+                        <button id="btnTriggerFileUpload" class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all active:scale-90 cursor-pointer" title="파일 첨부 (사진/스크린샷 OCR, 엑셀, CSV, TXT, PDF)">
                             <span class="material-symbols-outlined text-[20px]">attach_file</span>
                         </button>
                     </div>
@@ -318,39 +352,164 @@
              TAB 2: Unified Study Hub (3D Card & Smart Relay List)
              ========================================================================== -->
         <section id="tab-cards" class="tab-content flex flex-col items-center gap-4 active">
-            <!-- Study Mode Header & Switcher Bar -->
-            <div class="w-full flex items-center justify-between flex-wrap gap-2">
-                <!-- Left: View Mode Switcher (Card vs List) -->
-                <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/30 text-xs">
-                    <button id="btnViewModeCard" class="px-3.5 py-1.5 rounded-xl bg-white shadow-2xs text-primary font-extrabold flex items-center gap-1.5 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px]">style</span>
-                        <span>카드</span>
+            <!-- 1. Smart Stage Buckets (100% Full Width 4-Column Bar - 절대 세로 줄바꿈 방지) -->
+            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-2xl border border-outline-variant/30 text-xs shadow-2xs" id="smartStageBuckets">
+                <button type="button" class="bucket-btn py-1.5 px-1 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] sm:text-xs bg-white text-primary font-extrabold shadow-2xs active:scale-95 whitespace-nowrap" data-bucket="review">
+                    <span>복습</span>
+                    <span id="bucketCountReview" class="text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded-full bg-primary/10 text-primary">0</span>
+                </button>
+                <button type="button" class="bucket-btn py-1.5 px-1 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] sm:text-xs text-on-surface-variant hover:text-on-surface font-semibold active:scale-95 whitespace-nowrap" data-bucket="new">
+                    <span>새 문장</span>
+                    <span id="bucketCountNew" class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant">0</span>
+                </button>
+                <button type="button" class="bucket-btn py-1.5 px-1 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] sm:text-xs text-on-surface-variant hover:text-on-surface font-semibold active:scale-95 whitespace-nowrap" data-bucket="hard">
+                    <span>오답</span>
+                    <span id="bucketCountHard" class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant">0</span>
+                </button>
+                <button type="button" class="bucket-btn py-1.5 px-1 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 text-[11px] sm:text-xs text-on-surface-variant hover:text-on-surface font-semibold active:scale-95 whitespace-nowrap" data-bucket="all">
+                    <span>전체</span>
+                    <span id="bucketCountAll" class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant">0</span>
+                </button>
+            </div>
+
+            <!-- 2. Study Action Bar (단 1줄 초슬림 툴바 - 모바일 1줄 고정 보장) -->
+            <div id="studyCompactToolbar" class="w-full flex items-center justify-between gap-1 bg-surface-container-low/70 p-1 rounded-2xl border border-outline-variant/20 relative">
+                <!-- Left: Masking Segmented Chips (3단 초슬림 칩) -->
+                <div class="flex items-center gap-0.5 bg-surface rounded-xl p-0.5 border border-outline-variant/30 text-xs flex-shrink-0" id="displayModeChips">
+                    <button class="chip-btn display-chip active px-1.5 py-0.5 rounded-md text-[11px] font-bold transition-all" data-display="both">
+                        전체
                     </button>
-                    <button id="btnViewModeList" class="px-3.5 py-1.5 rounded-xl text-on-surface-variant hover:text-on-surface font-bold flex items-center gap-1.5 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px]">format_list_bulleted</span>
-                        <span>리스트</span>
+                    <button class="chip-btn display-chip px-1.5 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant hover:text-on-surface transition-all" data-display="kor_only">
+                        한글
+                    </button>
+                    <button class="chip-btn display-chip px-1.5 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant hover:text-on-surface transition-all" data-display="eng_only">
+                        영어
                     </button>
                 </div>
 
-                <!-- Right: Action Controls -->
-                <div class="flex items-center gap-1.5">
-                    <button id="btnToggleSpeedTriage" class="px-2.5 py-1.5 rounded-xl border border-tertiary/30 text-tertiary hover:bg-tertiary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer" title="3초 스피드 메타인지 선별 모드">
+                <!-- Right: Tool Shortcuts + Density Switcher + More Menu (단일 행 일체화) -->
+                <div class="flex items-center gap-0.5 flex-shrink-0">
+                    <!-- 5회 순환 소거 드릴 모드 버튼 -->
+                    <button id="btnToolbarDrillMode" class="p-1 rounded-lg border border-primary/30 bg-surface text-primary hover:bg-primary/10 transition-all font-bold text-xs flex items-center shadow-2xs active:scale-95 cursor-pointer" title="5회 순환 소거 드릴 (반복 암기)">
+                        <span class="material-symbols-outlined text-[15px]">repeat</span>
+                    </button>
+                    <!-- 3초 스피드 선별 모드 -->
+                    <button id="btnToggleSpeedTriage" class="p-1 rounded-lg border border-tertiary/30 bg-surface text-tertiary hover:bg-tertiary/10 transition-all font-bold text-xs flex items-center shadow-2xs active:scale-95 cursor-pointer" title="3초 스피드 선별 모드">
                         <span class="material-symbols-outlined text-[15px]">bolt</span>
-                        <span id="speedTriageBtnText">3초 스피드</span>
                     </button>
-                    <button id="btnToggleGlobalHint" class="px-2.5 py-1.5 rounded-xl border border-primary/30 text-primary hover:bg-primary-fixed/30 text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-2xs cursor-pointer" title="첫 글자 힌트">
-                        <span class="material-symbols-outlined text-[15px]">lightbulb</span>
-                        <span id="globalHintBtnText">힌트</span>
+                    <!-- 첫 글자 힌트 토글 -->
+                    <button id="btnToggleGlobalHint" class="p-1 rounded-lg border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container transition-all font-bold text-xs flex items-center shadow-2xs active:scale-95 cursor-pointer" title="첫 글자 힌트 토글">
+                        <span class="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
                     </button>
-                    <button id="btnShuffleCards" class="p-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 cursor-pointer" title="순서 섞기">
-                        <span class="material-symbols-outlined text-[16px]">shuffle</span>
+                    <!-- 검색창 토글 -->
+                    <button id="btnToggleSearch" class="p-1 rounded-lg border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container transition-all shadow-2xs cursor-pointer" title="검색창 열기">
+                        <span class="material-symbols-outlined text-[15px]">search</span>
                     </button>
-                    <button id="btnTtsRateToggle" class="px-2 py-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 text-xs font-bold cursor-pointer" title="TTS 재생 속도 조절">
-                        <span id="ttsRateBadge" class="text-[11px]">1.0x</span>
+
+                    <!-- View Density Switcher (3-Tier Icon Pill) -->
+                    <div class="flex items-center gap-0.5 bg-surface p-0.5 rounded-xl border border-outline-variant/30 text-xs">
+                        <button id="btnDensityFocus" class="density-btn p-1 rounded-md text-on-surface-variant hover:text-on-surface font-bold transition-all cursor-pointer" title="1개 집중 (플래시카드)">
+                            <span class="material-symbols-outlined text-[14px]">style</span>
+                        </button>
+                        <button id="btnDensityFeed" class="density-btn p-1 rounded-md text-on-surface-variant hover:text-on-surface font-bold transition-all cursor-pointer" title="2~3개 피드 보기">
+                            <span class="material-symbols-outlined text-[14px]">view_stream</span>
+                        </button>
+                        <button id="btnDensityCompact" class="density-btn p-1 rounded-md bg-primary/10 shadow-2xs text-primary font-bold transition-all cursor-pointer" title="사전식 콤팩트 목록">
+                            <span class="material-symbols-outlined text-[14px]">format_list_bulleted</span>
+                        </button>
+                    </div>
+
+                    <!-- More Utility Menu Button [ ⋯ ] -->
+                    <button id="btnStudyMoreMenu" class="p-1 rounded-lg bg-surface hover:bg-surface-container text-on-surface-variant border border-outline-variant/30 transition-all active:scale-95 shadow-2xs cursor-pointer" title="더보기">
+                        <span class="material-symbols-outlined text-[15px]">more_vert</span>
                     </button>
-                    <button id="btnResetSession" class="p-1.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container transition-all active:scale-95 cursor-pointer" title="세션 리셋">
-                        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
-                    </button>
+
+                    <!-- Hidden legacy buttons for compatibility -->
+                    <div class="hidden">
+                        <button id="btnViewModeCard"></button>
+                        <button id="btnViewModeList"></button>
+                    </div>
+
+                    <!-- More Utilities Dropdown Popover -->
+                    <div id="studyMoreMenuPopover" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-outline-variant/30 p-2 z-50 flex flex-col gap-1 text-xs animate-fade-in-up">
+                        <button id="btnCompactPlayAll" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-primary" id="iconPlayAll">play_circle</span>
+                            <span id="textPlayAll">현재 목록 연속 듣기</span>
+                        </button>
+                        <button id="btnExportDeckAudio" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer" title="현재 덱의 모든 문장을 원어민 MP3 압축팩으로 다운로드">
+                            <span class="material-symbols-outlined text-[18px] text-primary">download_for_offline</span>
+                            <span>원어민 MP3 전체 다운로드 (ZIP)</span>
+                        </button>
+                        <button id="btnToggleDrillMode" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-primary">repeat</span>
+                            <span>5회 순환 소거 드릴</span>
+                        </button>
+                        <button id="btnQuickQuizFromStudy" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-secondary">quiz</span>
+                            <span>현재 목록으로 퀴즈 풀기</span>
+                        </button>
+                        <div class="h-px bg-outline-variant/20 my-1"></div>
+                        <button id="btnShuffleCards" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-primary">shuffle</span>
+                            <span>순서 섞기 (Shuffle)</span>
+                        </button>
+                        <button id="btnTtsRateToggle" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <span class="material-symbols-outlined text-[18px] text-primary">speed</span>
+                                <span>TTS 배속</span>
+                            </div>
+                            <span id="ttsRateBadge" class="text-[11px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">1.0x</span>
+                        </button>
+                        <div class="h-px bg-outline-variant/20 my-1"></div>
+                        <button id="btnDeduplicateInList" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">cleaning_services</span>
+                            <span>중복 문장 정리</span>
+                        </button>
+                        <button id="btnExportCSV" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-on-surface text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+                            <span>CSV로 내보내기</span>
+                        </button>
+                        <button id="btnResetSession" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-error-container/20 text-error font-semibold text-left transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                            <span>세션 리셋</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsible Inline Search Bar -->
+            <div id="studyInlineSearchWrapper" class="hidden w-full relative transition-all">
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+                <input type="text" id="searchSentence" class="w-full bg-surface border border-primary/40 rounded-xl py-2 pl-10 pr-9 text-xs sm:text-sm text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary outline-none" placeholder="문장 또는 한국어 뜻 검색...">
+                <button id="btnCloseSearch" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">close</span>
+                </button>
+            </div>
+
+            <!-- Slim Drill Progress Bar Card -->
+            <div id="drillControlCard" class="hidden w-full bg-surface-container-low rounded-2xl p-2.5 sm:px-4 border border-primary/30 flex flex-col gap-1.5 animate-fade-in-up">
+                <div class="flex items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="text-primary font-black flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">repeat</span>
+                            <span>순환 드릴</span>
+                        </span>
+                        <div class="flex items-center gap-1 bg-surface px-2 py-0.5 rounded-lg border border-outline-variant/30">
+                            <span class="text-[10px] text-on-surface-variant font-bold">목표:</span>
+                            <select id="selectDrillTarget" class="text-xs font-black text-primary bg-transparent outline-none cursor-pointer">
+                                <option value="3">3회</option>
+                                <option value="5" selected>5회</option>
+                                <option value="10">10회</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-auto">
+                        <span id="drillProgressText" class="font-mono font-black text-primary text-[11px]">남은 문장: 0개 | 5회 졸업: 0/0</span>
+                        <button id="btnExitDrillMode" class="text-[10px] px-2 py-0.5 rounded-lg bg-surface hover:bg-error-container/20 text-on-surface-variant hover:text-error font-bold transition-all border border-outline-variant/30 cursor-pointer">종료</button>
+                    </div>
+                </div>
+                <div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div id="drillProgressBar" class="h-full bg-primary rounded-full transition-all duration-300 w-0"></div>
                 </div>
             </div>
 
@@ -389,9 +548,17 @@
                                     </span>
                                     <span class="text-[11px] font-semibold text-on-surface-variant/70 bg-surface-container-low px-2 py-0.5 rounded-full border border-outline-variant/20" id="cardCategory">Category</span>
                                 </div>
-                                <button id="btnCardTTS" class="p-2 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="발음 듣기 (단축키: R / Space)">
-                                    <span class="material-symbols-outlined text-[18px]">volume_up</span>
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button id="btnCardEdit" class="p-2 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="문장 수정 (단축키: E / 길게 누르기)">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </button>
+                                    <button id="btnCardDownloadMp3" class="p-2 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="원어민 MP3 다운로드">
+                                        <span class="material-symbols-outlined text-[18px]">download</span>
+                                    </button>
+                                    <button id="btnCardTTS" class="p-2 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="발음 듣기 (단축키: R / Space)">
+                                        <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Korean Main Prompt -->
@@ -414,7 +581,7 @@
                                         <span class="material-symbols-outlined text-[15px]">mic</span> 쉐도잉
                                     </button>
                                 </div>
-                                <span class="flex items-center gap-1 text-[11px] text-on-surface-variant/60"><i class="fa-solid fa-hand-pointer text-primary/70"></i> 탭/Space로 정답 확인</span>
+                                <span class="flex items-center gap-1 text-[11px] text-on-surface-variant/60"><i class="fa-solid fa-hand-pointer text-primary/70"></i> 탭: 정답 / 길게 누르기: 수정</span>
                             </div>
                         </div>
 
@@ -424,7 +591,12 @@
                                 <div class="px-2.5 py-0.5 rounded-full bg-surface-container-low border border-primary/20 text-primary text-[11px] font-bold" id="cardReviewInfo">
                                     학습 현황
                                 </div>
-                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Answer</span>
+                                <div class="flex items-center gap-2">
+                                    <button id="btnCardBackEdit" class="p-1.5 rounded-full bg-surface-container-low hover:bg-primary-fixed text-primary transition-all active:scale-90 shadow-2xs border border-primary/20 cursor-pointer" title="문장 수정 (단축키: E / 길게 누르기)">
+                                        <span class="material-symbols-outlined text-[16px]">edit</span>
+                                    </button>
+                                    <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Answer</span>
+                                </div>
                             </div>
 
                             <div class="flex-grow flex flex-col items-center justify-center text-center relative z-10 gap-2 px-2">
@@ -494,46 +666,10 @@
 
             <!-- ================= SUB-VIEW B: Smart Relay List View ================= -->
             <div id="studyViewListContainer" class="w-full max-w-xl flex flex-col gap-4 hidden">
-                <!-- Scope & Filter Header -->
-                <div class="flex flex-col gap-3">
-                    <!-- Segmented Switcher: Today's Focus vs All Vault -->
-                    <div class="grid grid-cols-2 gap-2 bg-surface-container-low p-1.5 rounded-2xl border border-outline-variant/30">
-                        <button id="btnScopeToday" class="scope-tab-btn py-2.5 px-3 rounded-xl bg-white shadow-sm text-primary font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer" onclick="window.app?.switchListScope('today_focus')">
-                            <span class="material-symbols-outlined text-[18px]">target</span>
-                            <span>오늘의 미션 (<span id="todayFocusCountBadge">0</span>)</span>
-                        </button>
-                        <button id="btnScopeAll" class="scope-tab-btn py-2.5 px-3 rounded-xl text-on-surface-variant hover:text-on-surface font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer" onclick="window.app?.switchListScope('all_vault')">
-                            <span class="material-symbols-outlined text-[18px]">inventory_2</span>
-                            <span>전체 보관함 (<span id="allLibraryCountBadge">0</span>)</span>
-                        </button>
-                    </div>
-
-                    <!-- Search Input & Tools -->
-                    <div class="flex items-center gap-2">
-                        <div class="relative flex-grow">
-                            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-                            <input type="text" id="searchSentence" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl py-2.5 pl-11 pr-4 text-sm text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:bg-surface transition-all" placeholder="문장 또는 한국어 뜻 검색...">
-                        </div>
-                        <button id="btnDeduplicateInList" class="p-2.5 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-on-surface-variant transition-all font-semibold flex-shrink-0" title="중복 문장 정리">
-                            <span class="material-symbols-outlined text-[18px]">cleaning_services</span>
-                        </button>
-                        <button id="btnExportCSV" class="p-2.5 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-on-surface-variant transition-all font-semibold flex-shrink-0" title="CSV 내보내기">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
-                        </button>
-                    </div>
-
-                    <!-- Masking Filter Chips -->
-                    <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar" id="displayModeChips">
-                        <button class="chip-btn display-chip active flex-shrink-0 px-3.5 py-1.5 rounded-full border border-outline-variant/40 text-xs font-bold bg-surface hover:bg-surface-container transition-all" data-display="both">
-                            전체 보기
-                        </button>
-                        <button class="chip-btn display-chip flex-shrink-0 px-3.5 py-1.5 rounded-full border border-outline-variant/40 text-xs font-bold bg-surface hover:bg-surface-container transition-all" data-display="kor_only">
-                            한글만 (영문 마스킹)
-                        </button>
-                        <button class="chip-btn display-chip flex-shrink-0 px-3.5 py-1.5 rounded-full border border-outline-variant/40 text-xs font-bold bg-surface hover:bg-surface-container transition-all" data-display="eng_only">
-                            영어만 (뜻 마스킹)
-                        </button>
-                    </div>
+                <!-- Hidden legacy scope switcher buttons for compatibility -->
+                <div class="hidden">
+                    <button id="btnScopeToday" onclick="window.app?.switchListScope('today_focus')"><span id="todayFocusCountBadge">0</span></button>
+                    <button id="btnScopeAll" onclick="window.app?.switchListScope('all_vault')"><span id="allLibraryCountBadge">0</span></button>
                 </div>
 
                 <!-- Dynamic Minimal Sentence List Container -->
@@ -573,143 +709,213 @@
         <!-- ==========================================================================
              TAB 4: Interactive Quiz Zone (Duolingo / Apple Minimalist Quiz)
              ========================================================================== -->
+        <!-- ==========================================================================
+             TAB 3: TUK 퀴즈 스튜디오 (Quiz Studio)
+             ========================================================================== -->
         <section id="tab-quiz" class="tab-content flex-col items-center gap-4 hidden">
             <!-- Quiz Setup Screen -->
-            <div id="quizSetup" class="w-full max-w-md bg-surface rounded-3xl p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-4">
+            <div id="quizSetup" class="w-full max-w-md bg-surface rounded-3xl p-6 border border-outline-variant/30 shadow-sm flex flex-col gap-5">
                 <div class="text-center space-y-1">
-                    <div class="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-1">
-                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">quiz</span>
+                    <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-1 shadow-2xs">
+                        <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">quiz</span>
                     </div>
-                    <h3 class="font-extrabold text-lg text-on-surface">암기 점검 퀴즈</h3>
-                    <p class="text-xs text-on-surface-variant">배운 문장을 회상하며 장기 기억으로 고정하세요.</p>
+                    <h3 class="font-extrabold text-xl text-on-surface">TUK 퀴즈 스튜디오</h3>
+                    <p class="text-xs text-on-surface-variant font-medium">자동으로 툭 튀어나올 때까지 뇌에 새기는 인출 챌린지</p>
                 </div>
 
-                <!-- 출제 범위 선택 (Modern Segmented Chips) -->
+                <!-- 출제 범위 선택 -->
                 <div class="flex flex-col gap-1.5">
-                    <span class="text-xs font-bold text-on-surface-variant">출제 범위</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center gap-2 p-2.5 rounded-2xl border border-primary bg-primary/5 cursor-pointer transition-all active:scale-98">
-                            <input type="radio" name="quizScope" value="studied" checked class="text-primary focus:ring-primary">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-on-surface">⭐ 학습한 문장</span>
-                                <span class="text-[10px] text-primary font-bold" id="quizScopeStudiedCount">0개</span>
-                            </div>
+                    <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px] text-primary">folder_open</span> 출제 범위
+                    </span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="flex flex-col items-center justify-center p-2.5 rounded-2xl border border-primary bg-primary/5 cursor-pointer transition-all active:scale-98 text-center scope-label shadow-2xs">
+                            <input type="radio" name="quizScope" value="wrong" checked class="hidden">
+                            <span class="text-xs font-extrabold text-error flex items-center gap-0.5">⚠️ 오답</span>
+                            <span class="text-[11px] text-error font-bold" id="quizScopeWrongCount">0개</span>
                         </label>
-                        <label class="flex items-center gap-2 p-2.5 rounded-2xl border border-outline-variant/40 hover:bg-surface-container cursor-pointer transition-all active:scale-98">
-                            <input type="radio" name="quizScope" value="today" class="text-primary focus:ring-primary">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-on-surface">📅 오늘 학습</span>
-                                <span class="text-[10px] text-on-surface-variant font-semibold" id="quizScopeTodayCount">0개</span>
-                            </div>
+                        <label class="flex flex-col items-center justify-center p-2.5 rounded-2xl border border-outline-variant/40 hover:bg-surface-container cursor-pointer transition-all active:scale-98 text-center scope-label">
+                            <input type="radio" name="quizScope" value="today" class="hidden">
+                            <span class="text-xs font-extrabold text-on-surface flex items-center gap-0.5">📅 오늘</span>
+                            <span class="text-[11px] text-on-surface-variant font-bold" id="quizScopeTodayCount">0개</span>
                         </label>
-                        <label class="flex items-center gap-2 p-2.5 rounded-2xl border border-outline-variant/40 hover:bg-surface-container cursor-pointer transition-all active:scale-98">
-                            <input type="radio" name="quizScope" value="wrong" class="text-primary focus:ring-primary">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-on-surface">⚠️ 오답 노트</span>
-                                <span class="text-[10px] text-on-surface-variant font-semibold" id="quizScopeWrongCount">0개</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-2 p-2.5 rounded-2xl border border-outline-variant/40 hover:bg-surface-container cursor-pointer transition-all active:scale-98">
-                            <input type="radio" name="quizScope" value="all" class="text-primary focus:ring-primary">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-on-surface">🌐 덱 전체</span>
-                                <span class="text-[10px] text-on-surface-variant font-semibold" id="quizScopeAllCount">0개</span>
-                            </div>
+                        <label class="flex flex-col items-center justify-center p-2.5 rounded-2xl border border-outline-variant/40 hover:bg-surface-container cursor-pointer transition-all active:scale-98 text-center scope-label">
+                            <input type="radio" name="quizScope" value="all" class="hidden">
+                            <span class="text-xs font-extrabold text-on-surface flex items-center gap-0.5">🌐 전체</span>
+                            <span class="text-[11px] text-on-surface-variant font-bold" id="quizScopeAllCount">0개</span>
                         </label>
                     </div>
+                    <input type="radio" name="quizScope" value="studied" class="hidden">
+                    <span id="quizScopeStudiedCount" class="hidden">0개</span>
                 </div>
 
-                <!-- 퀴즈 모드 선택 (Segmented Pill Switcher) -->
+                <!-- 퀴즈 3대 모드 선택 -->
                 <div class="flex flex-col gap-1.5">
-                    <span class="text-xs font-bold text-on-surface-variant">퀴즈 모드</span>
+                    <span class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px] text-primary">category</span> 챌린지 모드 선택
+                    </span>
                     <div class="grid grid-cols-3 gap-1.5 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/30" id="quizTypeWrapper">
-                        <label class="quiz-type-btn flex items-center justify-center py-2 px-1 rounded-xl cursor-pointer text-xs font-bold transition-all bg-white shadow-2xs text-primary">
-                            <input type="radio" name="quizType" value="arrange" checked class="hidden">
-                            <span>🧩 조립</span>
+                        <label class="quiz-type-btn flex flex-col items-center justify-center py-2.5 px-1 rounded-xl cursor-pointer text-xs font-bold transition-all bg-white shadow-2xs text-primary gap-0.5">
+                            <input type="radio" name="quizType" value="chunk" checked class="hidden">
+                            <span class="text-base">🧩</span>
+                            <span>청크 조립</span>
                         </label>
-                        <label class="quiz-type-btn flex items-center justify-center py-2 px-1 rounded-xl cursor-pointer text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all">
-                            <input type="radio" name="quizType" value="blank" class="hidden">
-                            <span>🔲 빈칸</span>
+                        <label class="quiz-type-btn flex flex-col items-center justify-center py-2.5 px-1 rounded-xl cursor-pointer text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all gap-0.5">
+                            <input type="radio" name="quizType" value="flash" class="hidden">
+                            <span class="text-base">⚡</span>
+                            <span>3초 플래시</span>
                         </label>
-                        <label class="quiz-type-btn flex items-center justify-center py-2 px-1 rounded-xl cursor-pointer text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all">
-                            <input type="radio" name="quizType" value="write" class="hidden">
-                            <span>✍️ 영작</span>
+                        <label class="quiz-type-btn flex flex-col items-center justify-center py-2.5 px-1 rounded-xl cursor-pointer text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-all gap-0.5">
+                            <input type="radio" name="quizType" value="dictation" class="hidden">
+                            <span class="text-base">🎙️✍️</span>
+                            <span>받아쓰기</span>
                         </label>
                     </div>
+                    <p class="text-[11px] text-on-surface-variant text-center pt-0.5" id="quizTypeDescText">
+                        의미 덩어리(Chunk)를 탭하여 1~2초 만에 문장을 직관적으로 완성합니다.
+                    </p>
+                </div>
+
+                <!-- 스마트 반복 루프 옵션 -->
+                <div class="bg-surface-container-low/70 p-3 rounded-2xl border border-outline-variant/30 flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-extrabold text-on-surface flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px] text-primary">repeat</span>
+                            무한 소거 루프 (Leitner Loop)
+                        </span>
+                        <span class="text-[10px] text-on-surface-variant font-medium">틀린 문제는 맞출 때까지 세션 뒤에 자동 재배치</span>
+                    </div>
+                    <input type="checkbox" id="chkQuizInfiniteLoop" checked class="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary cursor-pointer">
                 </div>
 
                 <!-- Start Button -->
-                <button id="btnStartQuiz" class="w-full bg-primary text-on-primary font-bold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_20px_rgba(70,72,212,0.25)] flex items-center justify-center gap-2 mt-1 cursor-pointer">
+                <button id="btnStartQuiz" class="w-full bg-primary text-on-primary font-extrabold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_20px_rgba(70,72,212,0.25)] flex items-center justify-center gap-2 cursor-pointer">
                     <span class="material-symbols-outlined text-[20px]">play_arrow</span>
-                    <span>퀴즈 시작하기</span>
+                    <span id="btnStartQuizText">퀴즈 시작하기 (10문제)</span>
                 </button>
             </div>
 
-            <!-- Active Quiz Screen (Duolingo Style Clean Studio) -->
+            <!-- Active Quiz Screen Studio -->
             <div id="quizContainer" class="hidden w-full max-w-lg flex flex-col items-center gap-3 animate-fade-in">
                 <!-- Quiz Header & Progress Bar -->
                 <div class="w-full flex justify-between items-center gap-3 px-1">
-                    <span id="quizScoreBadge" class="text-xs font-bold text-primary">문제 1 / 5</span>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <span id="quizModeBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">🧩 청크 조립</span>
+                        <span id="quizScoreBadge" class="text-xs font-bold text-on-surface-variant">1 / 5</span>
+                    </div>
                     <div class="flex-1 h-2 bg-surface-container-highest rounded-full overflow-hidden">
                         <div id="quizLinearProgress" class="h-full bg-primary rounded-full transition-all duration-300 w-1/5"></div>
                     </div>
-                    <button id="btnExitQuiz" class="text-xs px-2.5 py-1 rounded-full border border-outline-variant/40 hover:bg-surface-container text-on-surface-variant font-semibold transition-all cursor-pointer">
-                        중단
-                    </button>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button id="btnQuizTTSAudio" class="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant hover:text-primary transition-all cursor-pointer" title="원어민 발음 듣기">
+                            <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                        </button>
+                        <button id="btnExitQuiz" class="text-xs px-2.5 py-1 rounded-full border border-outline-variant/40 hover:bg-surface-container text-on-surface-variant font-semibold transition-all cursor-pointer">
+                            중단
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Prompt Card (Crisp White Card) -->
-                <div class="w-full bg-surface rounded-3xl shadow-sm border border-outline-variant/30 p-6 text-center">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-outline mb-1.5 block">한글 뜻을 보고 문장을 완성하세요</span>
-                    <h4 class="font-extrabold text-2xl text-on-surface leading-snug" id="quizKorean"></h4>
+                <!-- Prompt Card -->
+                <div class="w-full bg-surface rounded-3xl shadow-sm border border-outline-variant/30 p-6 text-center relative overflow-hidden">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-outline mb-1.5 block" id="quizPromptSubTitle">한글 뜻을 보고 문장을 완성하세요</span>
+                    <h4 class="font-extrabold text-2xl sm:text-3xl text-on-surface leading-snug break-words whitespace-normal" id="quizKorean"></h4>
                 </div>
 
-                <!-- Area for Arrange Quiz -->
+                <!-- Mode 1: Area for Chunk Assembly Quiz -->
                 <div id="quizArrangeArea" class="w-full flex flex-col gap-3">
                     <!-- Answer Slot Area -->
-                    <div class="min-h-[72px] p-4 bg-surface-container-low/70 border border-outline-variant/30 rounded-3xl flex flex-wrap items-center justify-center gap-2" id="selectedWordsBox">
+                    <div class="min-h-[72px] p-4 bg-surface-container-low/70 border border-outline-variant/30 rounded-3xl flex flex-wrap items-center justify-center gap-2 transition-all" id="selectedWordsBox">
                         <!-- Selected Word Chips appear here -->
                     </div>
                     <!-- Word Pool Bank -->
-                    <div class="flex flex-wrap justify-center gap-2 pt-2" id="wordPool">
+                    <div class="flex flex-wrap justify-center gap-2 pt-1" id="wordPool">
                         <!-- Word chips pool rendered here -->
                     </div>
                 </div>
 
-                <!-- Area for Blank Quiz -->
-                <div id="quizBlankArea" class="w-full hidden flex-col gap-3">
-                    <p class="font-extrabold text-xl text-center text-primary leading-relaxed p-4 bg-surface-container-low/70 rounded-3xl border border-outline-variant/30" id="blankSentence"></p>
-                    <input type="text" id="blankAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-3.5 text-center text-lg font-bold text-on-surface focus:ring-2 focus:ring-primary" placeholder="빈칸에 들어갈 단어 입력..." autocomplete="off">
+                <!-- Mode 2: Area for 3-Second Flash Speaking Quiz -->
+                <div id="quizFlashArea" class="w-full hidden flex-col items-center gap-3 text-center">
+                    <!-- 3-Second Countdown Progress Bar -->
+                    <div class="w-full bg-surface-container-low/80 p-5 rounded-3xl border border-outline-variant/30 flex flex-col items-center gap-3">
+                        <div class="flex items-center justify-between w-full text-xs font-bold text-on-surface-variant">
+                            <span class="flex items-center gap-1 text-primary">
+                                <span class="material-symbols-outlined text-[16px] animate-pulse">timer</span> 3초 인출 제한시간
+                            </span>
+                            <span id="flashTimerSecText" class="font-mono text-sm text-primary font-black">3.0s</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+                            <div id="flashTimerBar" class="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-100 rounded-full w-full"></div>
+                        </div>
+                        <p class="text-xs text-on-surface-variant font-medium pt-1">
+                            소리 내어 말한 후, 아래 정답 확인을 눌러 즉시 자가 채점하세요.
+                        </p>
+                    </div>
+
+                    <!-- Flash Revealed Target Box -->
+                    <div id="flashRevealedTargetBox" class="hidden w-full p-4 rounded-2xl bg-primary/5 border border-primary/20 text-center animate-fade-in">
+                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider block mb-0.5">정답 문장</span>
+                        <p id="flashTargetEnglish" class="font-extrabold text-lg sm:text-xl text-primary leading-snug"></p>
+                    </div>
+
+                    <!-- Flash 3-Tier Rapid Self-Assessment Buttons -->
+                    <div id="flashSelfEvalButtons" class="hidden grid grid-cols-3 gap-2 w-full pt-1 animate-fade-in">
+                        <button class="btn-flash-eval py-3 px-2 rounded-2xl bg-emerald-500 text-white font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 hover:opacity-95 active:scale-95 shadow-sm transition-all cursor-pointer" data-eval="known">
+                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                            <span>즉시 인출 성공 ✓</span>
+                        </button>
+                        <button class="btn-flash-eval py-3 px-2 rounded-2xl bg-amber-500 text-white font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 hover:opacity-95 active:scale-95 shadow-sm transition-all cursor-pointer" data-eval="unsure">
+                            <span class="material-symbols-outlined text-[18px]">help</span>
+                            <span>버벅임 / 헷갈림 ?</span>
+                        </button>
+                        <button class="btn-flash-eval py-3 px-2 rounded-2xl bg-rose-500 text-white font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 hover:opacity-95 active:scale-95 shadow-sm transition-all cursor-pointer" data-eval="unknown">
+                            <span class="material-symbols-outlined text-[18px]">cancel</span>
+                            <span>안 떠오름 ✗</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Area for Write Quiz (with Voice STT Mic) -->
+                <!-- Mode 3: Area for Smart Hybrid Dictation Quiz (Voice STT + Inline Text Edit) -->
                 <div id="quizWriteArea" class="w-full hidden flex-col gap-2.5">
                     <div class="relative w-full">
-                        <textarea id="writeAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-4 pr-12 text-base font-semibold text-on-surface focus:ring-2 focus:ring-primary focus:bg-white resize-none transition-all" placeholder="영어로 문장을 직접 작성하거나 마이크로 말씀해 보세요..." rows="3"></textarea>
-                        <!-- Voice Mic Button in top right of textarea -->
-                        <button id="btnQuizVoiceMic" class="absolute right-3 top-3 p-2 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all active:scale-90 cursor-pointer shadow-2xs" title="음성으로 영어 문장 말하기">
+                        <textarea id="writeAnswerInput" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-2xl p-4 pr-14 text-base font-semibold text-on-surface focus:ring-2 focus:ring-primary focus:bg-white resize-none transition-all leading-relaxed" placeholder="마이크로 영어로 말씀하시거나 키보드로 직접 입력하세요... (말한 후 텍스트 수정 가능)" rows="3"></textarea>
+                        
+                        <!-- Voice Mic Button in top right -->
+                        <button id="btnQuizVoiceMic" class="absolute right-3 top-3 p-2.5 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all active:scale-90 cursor-pointer shadow-2xs" title="음성으로 말하기 (STT)">
                             <span class="material-symbols-outlined text-[20px]" id="quizVoiceMicIcon">mic</span>
                         </button>
                     </div>
-                    <!-- Live Voice Listening Status for Quiz -->
+
+                    <!-- Live Voice Listening Banner -->
                     <div id="quizVoiceStatus" class="hidden flex items-center justify-between p-2.5 bg-error-container/20 border border-error/30 rounded-2xl text-xs text-error font-semibold animate-fade-in-up">
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
-                            <span>영어로 말씀해 주세요... 듣고 있습니다.</span>
+                            <span>듣고 있습니다... 영어로 말씀하세요.</span>
                         </div>
-                        <button id="btnStopQuizVoice" class="px-2.5 py-1 rounded-xl bg-error text-white text-[11px] font-bold hover:opacity-90 active:scale-95 cursor-pointer">완료</button>
+                        <button id="btnStopQuizVoice" class="px-2.5 py-1 rounded-xl bg-error text-white text-[11px] font-bold hover:opacity-90 active:scale-95 cursor-pointer">말하기 완료</button>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-on-surface-variant/70 px-1">
+                        <span>💡 마이크 발화 후 틀린 단어는 텍스트를 터치해 직접 수정하세요.</span>
+                        <button type="button" id="btnClearWriteInput" class="text-xs hover:text-error hover:underline cursor-pointer">지우기</button>
                     </div>
                 </div>
 
-                <!-- Feedback Banner -->
-                <div id="quizFeedback" class="hidden w-full p-3.5 rounded-2xl text-center font-bold text-sm transition-all animate-fade-in-up"></div>
+                <!-- Hidden legacy blank area compatibility -->
+                <div id="quizBlankArea" class="hidden">
+                    <p id="blankSentence"></p>
+                    <input type="text" id="blankAnswerInput">
+                </div>
+
+                <!-- Feedback & Visual Diff + Grammar Tip Banner -->
+                <div id="quizFeedback" class="hidden w-full p-4 rounded-3xl text-center font-bold text-sm transition-all animate-fade-in-up"></div>
 
                 <!-- Quiz Action Buttons -->
                 <div class="w-full flex gap-2 mt-1">
-                    <button id="btnCheckQuiz" class="w-full bg-primary text-on-primary font-bold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_20px_rgba(70,72,212,0.25)] cursor-pointer">
+                    <button id="btnCheckQuiz" class="w-full bg-primary text-on-primary font-extrabold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_20px_rgba(70,72,212,0.25)] cursor-pointer">
                         정답 확인
                     </button>
-                    <button id="btnNextQuiz" class="hidden w-full bg-secondary text-on-secondary font-bold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer">
+                    <button id="btnNextQuiz" class="hidden w-full bg-secondary text-on-secondary font-extrabold py-3.5 rounded-2xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer">
                         다음 문제 <i class="fa-solid fa-arrow-right ml-1"></i>
                     </button>
                 </div>
@@ -717,172 +923,176 @@
         </section>
 
         <!-- ==========================================================================
-             TAB 4: Learning Statistics & Mastery Dashboard
+             TAB 4: Learning Statistics & Future Review Dashboard
              ========================================================================== -->
-        <section id="tab-stats" class="tab-content flex-col gap-5 hidden">
+        <section id="tab-stats" class="tab-content flex-col gap-4 hidden pb-24">
             <!-- Header -->
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                    <h2 class="font-bold text-2xl text-on-surface">📊 학습 통계 & 진도율</h2>
-                    <p class="text-xs sm:text-sm text-on-surface-variant">나의 문장 암기 진도와 누적 성장 데이터를 한눈에 확인하세요.</p>
+                    <h2 class="font-bold text-xl sm:text-2xl text-on-surface">📊 학습 통계 & 미래 예측</h2>
+                    <p class="text-xs text-on-surface-variant">현재 기억 보유 상태와 향후 7일 복습량을 진단합니다.</p>
                 </div>
-                <button onclick="window.app?.openShareModal()" class="px-3.5 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-extrabold flex items-center gap-1.5 transition-all active:scale-95 border border-primary/20 shadow-xs cursor-pointer" title="공부 인증 카드 발행">
-                    <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
-                    <span>인증 카드</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <select id="statsDeckSelect" class="bg-surface-container border border-outline-variant/40 rounded-xl px-2.5 py-1.5 text-xs font-bold text-on-surface focus:ring-primary shadow-2xs">
+                        <option value="all">전체 문장 (All)</option>
+                    </select>
+                    <button onclick="window.app?.openShareModal()" class="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-extrabold flex items-center gap-1 transition-all active:scale-95 border border-primary/20 shadow-xs cursor-pointer" title="공부 인증 카드">
+                        <span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+                        <span>인증 카드</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Card 1: Overall Mastery Rate Hero -->
-            <div class="bg-surface rounded-3xl p-6 sm:p-7 border border-outline-variant/30 shadow-md flex flex-col gap-4">
+            <!-- Card 1: 🧠 두뇌 기억 건강도 & 망각 위험 긴급 구조대 -->
+            <div class="bg-surface rounded-3xl p-5 border border-outline-variant/30 shadow-sm flex flex-col gap-3.5">
                 <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
-                        <span class="text-xs font-bold text-outline uppercase tracking-wider">문장 암기 진도율</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-bold text-outline uppercase tracking-wider">에빙하우스 기억 보유율</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <select id="statsDeckSelect" class="bg-surface-container border border-outline-variant/40 rounded-xl px-2.5 py-1 text-xs font-bold text-on-surface focus:ring-primary">
-                            <option value="all">전체 문장</option>
-                        </select>
-                        <span id="dashMasteryPercentBadge" class="px-3 py-1 rounded-full bg-primary text-white font-extrabold text-sm shadow-sm">
-                            0%
-                        </span>
-                    </div>
-                </div>
-
-                <div class="flex items-baseline gap-2">
-                    <span id="dashMasteryPercentBig" class="text-4xl sm:text-5xl font-black text-primary tracking-tight">0%</span>
-                    <span id="dashMasteryCountStr" class="text-sm sm:text-base font-bold text-on-surface-variant">0 / 0 문장 마스터</span>
-                </div>
-
-                <!-- Big Visual Progress Bar (4-Color) -->
-                <div class="w-full bg-surface-container-highest h-3.5 rounded-full overflow-hidden p-0.5 shadow-inner flex gap-0.5">
-                    <div id="dashBarMastered" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: 0%" title="완벽 마스터"></div>
-                    <div id="dashBarLearning" class="h-full bg-amber-400 rounded-full transition-all duration-700" style="width: 0%" title="복습 진행중"></div>
-                    <div id="dashBarHard" class="h-full bg-rose-500 rounded-full transition-all duration-700" style="width: 0%" title="취약 오답"></div>
-                    <div id="dashBarUnstudied" class="h-full bg-slate-300 rounded-full transition-all duration-700" style="width: 0%" title="미학습 신규"></div>
-                </div>
-
-                <!-- 4 Status Breakdown Pills -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-center">
-                    <div class="bg-emerald-50 border border-emerald-200/60 rounded-2xl p-2.5 flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-emerald-800">🟢 완벽 마스터</span>
-                        <span id="dashCountMastered" class="text-base sm:text-lg font-extrabold text-emerald-700 mt-0.5">0개</span>
-                    </div>
-                    <div class="bg-amber-50 border border-amber-200/60 rounded-2xl p-2.5 flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-amber-800">🟡 복습 진행중</span>
-                        <span id="dashCountLearning" class="text-base sm:text-lg font-extrabold text-amber-700 mt-0.5">0개</span>
-                    </div>
-                    <div class="bg-rose-50 border border-rose-200/60 rounded-2xl p-2.5 flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-rose-800">🔴 취약 오답</span>
-                        <span id="dashCountHard" class="text-base sm:text-lg font-extrabold text-rose-700 mt-0.5">0개</span>
-                    </div>
-                    <div class="bg-surface-container-high border border-outline-variant/30 rounded-2xl p-2.5 flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-on-surface-variant">⚪ 미학습 신규</span>
-                        <span id="dashCountUnstudied" class="text-base sm:text-lg font-extrabold text-on-surface mt-0.5">0개</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 2: Today's Mission & 7-Day Streak -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Today Goal -->
-                <div class="bg-surface rounded-3xl p-5 sm:p-6 border border-outline-variant/30 shadow-md flex flex-col justify-between gap-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-outline">오늘의 복습 미션</span>
-                        <span class="material-symbols-outlined text-primary text-[20px]">flag</span>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline justify-between mb-1">
-                            <span id="dashTodayMissionCount" class="text-2xl font-black text-on-surface">0 / 20</span>
-                            <span id="dashTodayMissionPercent" class="text-xs font-extrabold text-primary">0%</span>
-                        </div>
-                        <div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
-                            <div id="dashTodayMissionBar" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <p id="dashTodayStatusNote" class="text-[11px] text-on-surface-variant font-medium">오늘 계획된 문장을 모두 마스터해보세요!</p>
-                </div>
-
-                <!-- 7-Day Streak -->
-                <div class="bg-surface rounded-3xl p-5 sm:p-6 border border-outline-variant/30 shadow-md flex flex-col justify-between gap-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-outline">연속 학습 기록</span>
-                        <span class="material-symbols-outlined text-amber-500 text-[20px]">local_fire_department</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="dashStreakDays" class="text-2xl font-black text-amber-600">🔥 1일 연속</span>
-                        <span class="text-xs font-bold text-outline">달성 중!</span>
-                    </div>
-                    <!-- 7-Day Activity Dots -->
-                    <div class="flex justify-between items-center pt-1" id="dashWeekDaysContainer">
-                        <!-- Rendered by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3: Total Study Volume & Weakness Top 3 -->
-            <div class="bg-surface rounded-3xl p-6 border border-outline-variant/30 shadow-md flex flex-col gap-4">
-                <div class="flex items-center justify-between pb-2 border-b border-outline-variant/20">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-[22px]">auto_stories</span>
-                        <h3 class="font-bold text-base text-on-surface">누적 회독수 & 학습 데이터</h3>
-                    </div>
-                    <span id="dashTotalStudyCountBadge" class="text-xs font-extrabold bg-primary/10 text-primary px-3 py-1 rounded-full">
-                        총 0회독
+                    <span id="dashHealthGradeBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs shadow-2xs">
+                        🛡️ 최상위 안전 상태
                     </span>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-surface-container-low rounded-2xl p-3.5 flex flex-col">
-                        <span class="text-[11px] text-on-surface-variant font-medium">총 누적 반복 횟수</span>
-                        <span id="dashTotalStudyCount" class="text-xl font-black text-on-surface mt-0.5">0회</span>
+                <div class="flex items-baseline justify-between">
+                    <div class="flex items-baseline gap-1.5">
+                        <span id="dashHealthScoreNum" class="text-3xl sm:text-4xl font-black text-primary tracking-tight">95점</span>
+                        <span class="text-xs font-bold text-on-surface-variant">/ 100점 만점</span>
                     </div>
-                    <div class="bg-surface-container-low rounded-2xl p-3.5 flex flex-col">
-                        <span class="text-[11px] text-on-surface-variant font-medium">문장당 평균 회독수</span>
-                        <span id="dashAvgStudyCount" class="text-xl font-black text-on-surface mt-0.5">0.0회</span>
-                    </div>
+                    <span id="dashAvgRecallSpeed" class="text-xs text-on-surface-variant font-bold">⚡ 평균 인출 2.3초</span>
                 </div>
 
-                <!-- Top 3 Weak Sentences -->
-                <div class="flex flex-col gap-2 pt-1">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-on-surface flex items-center gap-1">
-                            <span class="material-symbols-outlined text-rose-500 text-[16px]">priority_high</span>
-                            <span>나의 취약 오답 문장 Top 3</span>
-                        </span>
-                        <button id="btnStudyWeakTop3" class="text-[11px] font-extrabold text-primary hover:underline cursor-pointer">
-                            집중 복습하기 ➔
-                        </button>
+                <!-- Retention Bar -->
+                <div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden p-0.5 shadow-inner">
+                    <div id="dashHealthBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-primary rounded-full transition-all duration-700" style="width: 95%"></div>
+                </div>
+
+                <!-- Emergency Lifesaver Box -->
+                <div id="dashLifesaverBox" class="bg-rose-50/80 border border-rose-200/80 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2.5 text-center sm:text-left">
+                        <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">notification_important</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5 justify-center sm:justify-start">
+                                <strong class="text-xs font-black text-rose-900">망각 위기 골든타임</strong>
+                                <span id="dashOverdueCountBadge" class="bg-rose-500 text-white font-extrabold text-[10px] px-1.5 py-0.2 rounded-full">0개</span>
+                            </div>
+                            <p class="text-[11px] text-rose-700/90 mt-0.5" id="dashLifesaverText">오늘 복습하지 않으면 잊혀질 위험이 있는 문장입니다.</p>
+                        </div>
                     </div>
-                    <div id="dashWeakSentencesList" class="flex flex-col gap-2">
-                        <!-- Dynamic Top 3 items rendered by JS -->
+                    <button id="btnStartLifesaverReview" class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[15px]">healing</span>
+                        <span>망각 위기 긴급 복습</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2: 🌳 5단계 장기기억 안착률 -->
+            <div class="bg-surface rounded-3xl p-5 border border-outline-variant/30 shadow-sm flex flex-col gap-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-primary text-[20px]">psychology</span>
+                        <h3 class="font-bold text-sm sm:text-base text-on-surface">5단계 장기기억 안착률</h3>
+                    </div>
+                    <span id="dashMasteryTotalBadge" class="text-[11px] font-extrabold bg-primary/10 text-primary px-2.5 py-0.5 rounded-full">
+                        총 0문장 분석
+                    </span>
+                </div>
+
+                <!-- 5-Stage Multi-Color Progress Bar -->
+                <div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden p-0.5 shadow-inner flex gap-0.5">
+                    <div id="dashStageBar5" class="h-full bg-amber-500 rounded-full transition-all duration-700" style="width: 0%" title="5단계: 열매(장기기억)"></div>
+                    <div id="dashStageBar4" class="h-full bg-indigo-500 rounded-full transition-all duration-700" style="width: 0%" title="4단계: 꽃(14일 주기)"></div>
+                    <div id="dashStageBar3" class="h-full bg-teal-500 rounded-full transition-all duration-700" style="width: 0%" title="3단계: 줄기(7일 주기)"></div>
+                    <div id="dashStageBar2" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: 0%" title="2단계: 새싹(3일 주기)"></div>
+                    <div id="dashStageBar1" class="h-full bg-slate-400 rounded-full transition-all duration-700" style="width: 0%" title="1단계: 씨앗(1일 주기)"></div>
+                </div>
+
+                <!-- 5-Stage Compact Grid -->
+                <div class="grid grid-cols-5 gap-1.5 pt-0.5 text-center">
+                    <div class="bg-amber-50/80 border border-amber-200/60 rounded-xl p-1.5 flex flex-col items-center">
+                        <span class="text-[10px] font-black text-amber-800">🍎 열매</span>
+                        <span class="text-[9px] text-amber-700/80">장기기억</span>
+                        <span id="dashStageCount5" class="text-xs sm:text-sm font-black text-amber-800 mt-0.5">0개</span>
+                    </div>
+                    <div class="bg-indigo-50/80 border border-indigo-200/60 rounded-xl p-1.5 flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-indigo-800">🌸 꽃</span>
+                        <span class="text-[9px] text-indigo-700/80">14일 주기</span>
+                        <span id="dashStageCount4" class="text-xs sm:text-sm font-bold text-indigo-800 mt-0.5">0개</span>
+                    </div>
+                    <div class="bg-teal-50/80 border border-teal-200/60 rounded-xl p-1.5 flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-teal-800">🪴 줄기</span>
+                        <span class="text-[9px] text-teal-700/80">7일 주기</span>
+                        <span id="dashStageCount3" class="text-xs sm:text-sm font-bold text-teal-800 mt-0.5">0개</span>
+                    </div>
+                    <div class="bg-emerald-50/80 border border-emerald-200/60 rounded-xl p-1.5 flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-emerald-800">🌿 새싹</span>
+                        <span class="text-[9px] text-emerald-700/80">3일 주기</span>
+                        <span id="dashStageCount2" class="text-xs sm:text-sm font-bold text-emerald-800 mt-0.5">0개</span>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-1.5 flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-slate-700">🌱 씨앗</span>
+                        <span class="text-[9px] text-slate-500">1일 주기</span>
+                        <span id="dashStageCount1" class="text-xs sm:text-sm font-bold text-slate-700 mt-0.5">0개</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 4: Deck by Deck Progress List -->
-            <div class="bg-surface rounded-3xl p-6 border border-outline-variant/30 shadow-md flex flex-col gap-4">
-                <div class="flex items-center justify-between pb-2 border-b border-outline-variant/20">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-[22px]">folder_copy</span>
-                        <h3 class="font-bold text-base text-on-surface">단어장(덱)별 진도율</h3>
+            <!-- Card 3: 🔮 미래 복습 부하 예측 & 완독 D-Day (통합 카드) -->
+            <div class="bg-surface rounded-3xl p-5 border border-outline-variant/30 shadow-sm flex flex-col gap-3.5">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-secondary text-[20px]">calendar_clock</span>
+                        <h3 class="font-bold text-sm sm:text-base text-on-surface">향후 7일 복습 예측 & 완독 D-Day</h3>
                     </div>
-                    <span class="text-xs text-on-surface-variant font-medium">개별 덱 완주율</span>
+                    <span id="dashPeakForecastBadge" class="text-[11px] font-bold px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">
+                        7일간 총 0개 예정
+                    </span>
                 </div>
-                <div id="dashDeckProgressList" class="flex flex-col gap-3">
-                    <!-- Deck items rendered dynamically by JS -->
+
+                <!-- D-Day Summary Strip -->
+                <div class="bg-surface-container-low/80 rounded-2xl p-3 border border-outline-variant/20 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm" id="dashDDayNumber">
+                            D-11
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-outline font-medium">100% 완독 예정일</span>
+                            <p class="text-xs font-extrabold text-on-surface" id="dashDDayDateStr">2026.09.16</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-outline font-medium">남은 미졸업 문장</span>
+                        <p class="text-xs font-black text-secondary" id="dashRemainingToGraduate">0개</p>
+                    </div>
+                </div>
+
+                <!-- 7-Day Vertical Bar Forecast Chart -->
+                <div class="bg-surface-container-low/40 rounded-2xl p-3 border border-outline-variant/20 flex flex-col gap-2">
+                    <div id="dashForecastChartContainer" class="grid grid-cols-7 gap-1 sm:gap-2 items-end h-28 pt-2 px-1">
+                        <!-- 7 vertical bars populated dynamically by JS -->
+                    </div>
+                    <div class="pt-2 border-t border-outline-variant/15 flex items-center justify-between text-[10px]">
+                        <span id="dashForecastInsightText" class="text-on-surface-variant font-medium flex items-center gap-1 truncate">
+                            <span class="material-symbols-outlined text-[14px] text-primary">insights</span>
+                            <span>복습 부하 분석 중...</span>
+                        </span>
+                        <span id="dashDailyPaceBadge" class="text-outline flex-shrink-0 font-medium">하루 10개 기준</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Bottom Share CTA -->
-            <div class="bg-gradient-to-br from-primary/10 via-surface to-secondary/10 rounded-3xl p-6 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-                <div>
-                    <h4 class="font-extrabold text-base text-on-surface">오늘의 성장 기록을 공유해보세요!</h4>
-                    <p class="text-xs text-on-surface-variant mt-0.5">인스타/SNS에 공유 가능한 고화질 공부 인증 카드를 만들어드립니다.</p>
+            <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/25 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">workspace_premium</span>
+                    <span class="text-xs font-bold text-on-surface">오늘의 성장 기록을 인증 카드로 공유해보세요!</span>
                 </div>
-                <button onclick="window.app?.openShareModal()" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-primary text-white font-extrabold text-xs shadow-md hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[18px]">photo_camera</span>
-                    <span>공부 인증 카드 만들기</span>
+                <button onclick="window.app?.openShareModal()" class="px-3 py-1.5 rounded-xl bg-primary text-white font-bold text-xs hover:opacity-90 active:scale-95 transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap shadow-xs">
+                    <span>인증 카드</span>
+                    <span class="material-symbols-outlined text-[14px]">chevron_right</span>
                 </button>
             </div>
         </section>
@@ -1211,10 +1421,485 @@
         </div>
     </div>
 
+    <!-- 7. Sentence Edit Modal (문장 수정 모달) -->
+    <div id="sentenceEditModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
+        <div class="bg-surface border border-outline-variant/30 rounded-3xl p-6 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col gap-4 animate-fade-in-up">
+            <div class="flex justify-between items-center border-b border-surface-container-high pb-2">
+                <h3 class="font-extrabold text-base text-on-surface flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-primary">edit_note</span> 문장 수정하기
+                </h3>
+                <button id="btnCloseSentenceEditModal" class="text-on-surface-variant hover:text-on-surface text-xl font-bold p-1 cursor-pointer">&times;</button>
+            </div>
+            <form id="formSentenceEdit" class="flex flex-col gap-3" onsubmit="event.preventDefault();">
+                <input type="hidden" id="editSentenceId">
+
+                <!-- Auto-Translate Control & Status Bar -->
+                <div class="flex items-center justify-between bg-surface-container-low px-3 py-2 rounded-xl border border-outline-variant/30 text-xs">
+                    <label for="chkAutoTranslateInEdit" class="flex items-center gap-1.5 font-bold text-on-surface cursor-pointer select-none">
+                        <input type="checkbox" id="chkAutoTranslateInEdit" checked class="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary cursor-pointer">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px] text-primary">translate</span>
+                            <span>실시간 자동 번역 (입력 시 상대 언어 자동완성)</span>
+                        </span>
+                    </label>
+                    <span id="editTranslateStatus" class="text-[11px] font-bold text-primary hidden animate-pulse flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[14px]">sync</span>
+                        <span>번역 중...</span>
+                    </span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                        <label for="editSentenceEnglish" class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                            <span>영어 문장 (English)</span>
+                            <span class="text-error font-bold">*</span>
+                        </label>
+                        <button type="button" id="btnTranslateToKorean" class="text-[11px] font-bold text-primary hover:text-primary/90 bg-primary/10 hover:bg-primary/20 px-2.5 py-0.5 rounded-lg flex items-center gap-1 transition-all active:scale-95 cursor-pointer" title="영어 문장을 한국어로 번역하여 아래 뜻에 채우기">
+                            <span class="material-symbols-outlined text-[13px]">translate</span>
+                            <span>한글 번역</span>
+                        </button>
+                    </div>
+                    <textarea id="editSentenceEnglish" rows="3" required class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-3 text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary focus:bg-white resize-y transition-all placeholder:text-outline" placeholder="외울 영어 문장을 입력하세요..."></textarea>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                        <label for="editSentenceKorean" class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                            <span>한국어 뜻 (Korean)</span>
+                            <span class="text-error font-bold">*</span>
+                        </label>
+                        <button type="button" id="btnTranslateToEnglish" class="text-[11px] font-bold text-secondary hover:text-secondary/90 bg-secondary/10 hover:bg-secondary/20 px-2.5 py-0.5 rounded-lg flex items-center gap-1 transition-all active:scale-95 cursor-pointer" title="한국어 뜻을 영어로 영작하여 위 문장에 채우기">
+                            <span class="material-symbols-outlined text-[13px]">g_translate</span>
+                            <span>영어 영작</span>
+                        </button>
+                    </div>
+                    <textarea id="editSentenceKorean" rows="2" required class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-3 text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary focus:bg-white resize-y transition-all placeholder:text-outline" placeholder="한국어 뜻을 입력하세요..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex flex-col gap-1">
+                        <label for="editSentenceCategory" class="text-xs font-bold text-on-surface-variant">카테고리</label>
+                        <input type="text" id="editSentenceCategory" list="editCategorySuggestions" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-2.5 text-xs text-on-surface focus:ring-2 focus:ring-primary" placeholder="카테고리 입력 또는 선택">
+                        <datalist id="editCategorySuggestions">
+                            <option value="일상 회화">
+                            <option value="비즈니스">
+                            <option value="여행">
+                            <option value="패턴/관용구">
+                            <option value="기타">
+                        </datalist>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="editSentenceDeck" class="text-xs font-bold text-on-surface-variant">소속 덱</label>
+                        <select id="editSentenceDeck" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-2.5 text-xs text-on-surface focus:ring-2 focus:ring-primary">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-surface-container-high">
+                    <button type="button" id="btnCancelSentenceEdit" class="px-4 py-2.5 rounded-xl border border-outline-variant/40 text-on-surface-variant font-bold text-xs hover:bg-surface-container transition-all cursor-pointer">취소</button>
+                    <button type="submit" id="btnSaveSentenceEdit" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-xs hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        <span>저장하기</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 8. Quiz Result & Wrong Answers Report Modal -->
+    <div id="quizResultModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm animate-fade-in">
+        <div class="bg-surface w-full max-w-md rounded-3xl p-6 shadow-2xl border border-outline-variant/30 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🏆</span>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-on-surface">퀴즈 완료 리포트</h3>
+                        <p class="text-xs text-on-surface-variant">인출 점검 및 장기 기억 승급 결과</p>
+                    </div>
+                </div>
+                <button id="btnCloseQuizResultModal" class="text-on-surface-variant hover:text-on-surface text-xl font-bold p-1 cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Score Summary Cards -->
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-surface-container-low p-3 rounded-2xl border border-outline-variant/20">
+                    <span class="text-[11px] font-bold text-on-surface-variant block">최종 점수</span>
+                    <span id="quizResultScore" class="text-lg font-black text-primary">0 / 0</span>
+                </div>
+                <div class="bg-surface-container-low p-3 rounded-2xl border border-outline-variant/20">
+                    <span class="text-[11px] font-bold text-on-surface-variant block">장기기억 승급</span>
+                    <span id="quizResultGraduated" class="text-lg font-black text-emerald-600">0개</span>
+                </div>
+                <div class="bg-surface-container-low p-3 rounded-2xl border border-outline-variant/20">
+                    <span class="text-[11px] font-bold text-on-surface-variant block">오답(복습필요)</span>
+                    <span id="quizResultWrong" class="text-lg font-black text-error">0개</span>
+                </div>
+            </div>
+
+            <!-- Wrong Answers Section (Only visible when wrong answers exist) -->
+            <div id="quizResultWrongSection" class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-error flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">warning</span>
+                        틀린 오답 문장 (<span id="quizResultWrongListCount">0</span>개)
+                    </span>
+                    <span class="text-[11px] text-on-surface-variant">콤팩트 모드에서 집중 복습</span>
+                </div>
+                <div id="quizResultWrongList" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1 divide-y divide-outline-variant/15 bg-surface-container-low/50 p-2.5 rounded-2xl border border-outline-variant/20">
+                    <!-- Wrong items populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Perfect Pass Banner (When 0 wrong) -->
+            <div id="quizResultPerfectBanner" class="hidden flex flex-col items-center gap-2 p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center">
+                <span class="text-3xl">🎉</span>
+                <span class="font-extrabold text-sm text-emerald-900">퍼펙트 통과! 모든 문제를 맞혔습니다.</span>
+                <span class="text-xs text-emerald-700">모든 문장이 장기 기억 단계로 한 걸음 승급되었습니다!</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col gap-2 pt-2 border-t border-outline-variant/20">
+                <button id="btnGoToWrongReview" class="w-full py-3.5 bg-primary text-on-primary rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 shadow-sm transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">view_headline</span>
+                    <span>콤팩트 모드에서 오답 집중 복습하기</span>
+                </button>
+                <div class="flex gap-2">
+                    <button id="btnRetryQuiz" class="flex-1 py-2.5 bg-surface-container text-on-surface-variant rounded-xl font-bold text-xs hover:bg-surface-container-high active:scale-95 transition-all cursor-pointer">
+                        다시 풀기 🔄
+                    </button>
+                    <button id="btnCloseQuizResult" class="flex-1 py-2.5 bg-surface border border-outline-variant/30 text-on-surface-variant rounded-xl font-bold text-xs hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+                        닫기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. Bluetooth Keyboard Shortcuts Help Modal -->
+    <div id="shortcutsModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm animate-fade-in">
+        <div class="bg-surface w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-outline-variant/30 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-outline-variant/15 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[22px]">keyboard</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-extrabold text-base text-on-surface">블루투스 키보드 단축키</h3>
+                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-extrabold text-[10px] tracking-wide flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-[12px]">bluetooth</span> 무선 키보드 지원
+                            </span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">화면 터치 없이 키보드 하나로 완벽하게 제어하세요</p>
+                    </div>
+                </div>
+                <button id="btnCloseShortcutsModal" class="text-on-surface-variant hover:text-on-surface text-xl font-bold p-1 cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="flex flex-col gap-4 text-xs">
+                <!-- Section 1: 학습 및 플래시카드 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-primary">
+                        <span class="material-symbols-outlined text-[16px]">style</span>
+                        학습 & 플래시카드
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-on-surface-variant">
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">카드 뒤집기 (앞/뒤)</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">Space</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">원어민 발음 듣기</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">R / P</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">다음 / 이전 카드</span>
+                            <div class="flex gap-1">
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">→</kbd>
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">←</kbd>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">난이도 평가 (다시/적정/쉬움)</span>
+                            <div class="flex gap-1">
+                                <kbd class="px-1.5 py-0.8 bg-error/10 text-error rounded-md border border-error/20 font-mono font-bold text-[11px]">1</kbd>
+                                <kbd class="px-1.5 py-0.8 bg-primary/10 text-primary rounded-md border border-primary/20 font-mono font-bold text-[11px]">2</kbd>
+                                <kbd class="px-1.5 py-0.8 bg-emerald-100 text-emerald-700 rounded-md border border-emerald-300 font-mono font-bold text-[11px]">3</kbd>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">음성 쉐도잉 (말하기)</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">S</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">초성 힌트 보기</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">H</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">현재 문장 MP3 저장</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">D</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">문장 바로 수정</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">E</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: 뷰 모드 및 재생 속도 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-secondary">
+                        <span class="material-symbols-outlined text-[16px]">speed</span>
+                        화면 뷰 & 재생 제어
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-on-surface-variant">
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">뷰 전환 (피드↔집중↔목록)</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">V</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">학습 버킷 (복습/새문장/오답/전체)</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">B</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">발음 속도 느리게 / 빠르게</span>
+                            <div class="flex gap-1">
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">[ (0.8x)</kbd>
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">] (1.2x)</kbd>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">기본 속도 복원 (1.0x)</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">\ / 0</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: 퀴즈 모드 및 전체 탐색 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-tertiary">
+                        <span class="material-symbols-outlined text-[16px]">quiz</span>
+                        퀴즈 및 내비게이션
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-on-surface-variant">
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">청크 선택 / 셀프 평가</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">1 ~ 4</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">정답 확인 / 다음 문제</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">Enter / Space</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">선택 청크 취소</span>
+                            <kbd class="px-2 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">Backspace</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2 rounded-xl border border-outline-variant/15">
+                            <span class="font-medium">단축키 도움말 / 닫기</span>
+                            <div class="flex gap-1">
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">?</kbd>
+                                <kbd class="px-1.5 py-0.8 bg-surface-container-high rounded-md border border-outline-variant/30 font-mono font-bold text-on-surface text-[11px] shadow-2xs">Esc</kbd>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between">
+                <span class="text-[11px] text-on-surface-variant/80">💡 언제든지 <strong class="font-mono text-primary font-bold">?</strong> 키를 누르면 이 창이 열립니다.</span>
+                <button id="btnConfirmCloseShortcuts" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-xs hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Comprehensive App Settings Modal -->
+    <div id="settingsModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm animate-fade-in">
+        <div class="bg-surface w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-outline-variant/30 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-outline-variant/15 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[22px]">settings</span>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-on-surface">앱 환경설정</h3>
+                        <p class="text-xs text-on-surface-variant">학습 환경, 발음 음성, 백업 및 단축키 관리</p>
+                    </div>
+                </div>
+                <button id="btnCloseSettingsModal" class="text-on-surface-variant hover:text-on-surface text-xl font-bold p-1 cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="flex flex-col gap-4 text-xs">
+                <!-- Group 1: 🎯 학습 목표 & 페이스메이커 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-primary">
+                            <span class="material-symbols-outlined text-[16px]">flag</span>
+                            학습 목표 & 페이스메이커
+                        </h4>
+                        <button id="btnOpenGoalFromSettings" class="text-[11px] font-bold text-primary hover:underline flex items-center gap-0.5 cursor-pointer">
+                            <span>상세 설정</span>
+                            <span class="material-symbols-outlined text-[13px]">chevron_right</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-on-surface">
+                        <div class="flex flex-col gap-1 bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <label class="text-[11px] font-bold text-on-surface-variant">일일 학습량</label>
+                            <select id="settingsDailyCount" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-1.5 text-xs font-bold text-on-surface outline-none focus:border-primary">
+                                <option value="5">매일 5개 (라이트)</option>
+                                <option value="10">매일 10개 (추천)</option>
+                                <option value="20">매일 20개 (열정)</option>
+                                <option value="30">매일 30개 (스파르타)</option>
+                                <option value="50">매일 50개 (폭풍)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1 bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <label class="text-[11px] font-bold text-on-surface-variant">일일 복습 한도</label>
+                            <select id="settingsReviewCap" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg p-1.5 text-xs font-bold text-on-surface outline-none focus:border-primary">
+                                <option value="10">10개 제한</option>
+                                <option value="20">20개 제한 (추천)</option>
+                                <option value="30">30개 제한</option>
+                                <option value="50">50개 제한</option>
+                                <option value="9999">무제한 복습</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 2: 🔄 순환 소거 드릴 설정 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-primary">
+                            <span class="material-symbols-outlined text-[16px]">repeat</span>
+                            순환 소거 드릴 (반복 암기)
+                        </h4>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">Leitner Queue</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-on-surface">기본 소거 졸업 목표</span>
+                            <span class="text-[11px] text-on-surface-variant">맞출 때마다 뒤로 밀리고 N회 누적 시 완전 졸업</span>
+                        </div>
+                        <select id="settingsDrillTargetRounds" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-bold text-on-surface outline-none focus:border-primary">
+                            <option value="3">3회 누적</option>
+                            <option value="5" selected>5회 누적 (추천)</option>
+                            <option value="7">7회 누적</option>
+                            <option value="10">10회 누적 (완벽)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Group 3: 🔊 원어민 음성 & TTS 설정 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-secondary">
+                        <span class="material-symbols-outlined text-[16px]">volume_up</span>
+                        원어민 음성 & 발음 (Google Studio TTS)
+                    </h4>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-on-surface">기본 재생 속도</span>
+                                <span class="text-[11px] text-on-surface-variant">단어장 및 플래시카드 기본 발음 속도</span>
+                            </div>
+                            <select id="settingsTtsRate" class="bg-surface-container-low border border-outline-variant/30 rounded-lg px-2.5 py-1 text-xs font-bold text-on-surface outline-none focus:border-primary">
+                                <option value="0.8">0.8x (정밀 쉐도잉)</option>
+                                <option value="1.0" selected>1.0x (표준 원어민)</option>
+                                <option value="1.2">1.2x (고속 리스닝)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-on-surface">카드 뒤집을 때 자동 발음</span>
+                                <span class="text-[11px] text-on-surface-variant">뒷면(영어)으로 뒤집힐 때 자동으로 발음 재생</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="settingsAutoPlayTts" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 4: ⌨️ 블루투스 키보드 & 📳 진동 피드백 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-tertiary">
+                        <span class="material-symbols-outlined text-[16px]">keyboard</span>
+                        키보드 단축키 & 햅틱
+                    </h4>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-on-surface">블루투스 키보드 단축키 안내</span>
+                                <span class="text-[11px] text-on-surface-variant">무선 키보드로 학습, 퀴즈, 이동 완벽 제어</span>
+                            </div>
+                            <button id="btnOpenShortcutsFromSettings" class="px-3 py-1.5 rounded-xl bg-primary/10 text-primary font-bold text-xs hover:bg-primary/20 transition-all flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[15px]">keyboard</span>
+                                <span>단축키 보기</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between bg-surface p-2.5 rounded-xl border border-outline-variant/15">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-on-surface">진동 햅틱 피드백</span>
+                                <span class="text-[11px] text-on-surface-variant">버튼 탭 및 정답/오답 채점 시 촉각 진동</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="settingsHapticFeedback" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 5: 💾 데이터 백업, 복원 및 관리 -->
+                <div class="bg-surface-container-low/60 rounded-2xl p-3.5 border border-outline-variant/20 flex flex-col gap-2.5">
+                    <h4 class="font-black text-on-surface flex items-center gap-1.5 text-xs text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[16px]">folder_zip</span>
+                        데이터 백업 & 관리
+                    </h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnBackupJSON" class="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-surface border border-outline-variant/25 font-bold text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer shadow-2xs">
+                            <span class="material-symbols-outlined text-[16px] text-primary">download</span>
+                            <span>전체 백업 (JSON)</span>
+                        </button>
+                        <button id="btnTriggerRestoreJSON" class="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-surface border border-outline-variant/25 font-bold text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer shadow-2xs">
+                            <span class="material-symbols-outlined text-[16px] text-secondary">upload_file</span>
+                            <span>백업 복원 (JSON)</span>
+                        </button>
+                        <input type="file" id="inputRestoreJSON" accept=".json" class="hidden">
+                    </div>
+                    <div class="flex items-center justify-between pt-1 text-[11px] text-on-surface-variant">
+                        <button id="btnSettingsDeduplicate" class="hover:text-primary font-semibold underline cursor-pointer">중복 문장 정리</button>
+                        <button id="btnSettingsResetData" class="text-error/80 hover:text-error font-semibold underline cursor-pointer">데이터 초기화</button>
+                    </div>
+                </div>
+
+                <!-- Group 6: 📱 앱 정보 -->
+                <div class="flex items-center justify-between px-2 text-[11px] text-on-surface-variant/70">
+                    <span>TUK (Train • Unlock • Keep) v2.5</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> 로컬 오프라인 지원</span>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="pt-2 border-t border-outline-variant/20 flex items-center justify-end">
+                <button id="btnSaveAndCloseSettings" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-xs hover:opacity-90 active:scale-95 transition-all shadow-xs cursor-pointer">
+                    설정 완료
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Deferred Heavy Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
     <script>
         window.addEventListener('load', () => {
             if (window.pdfjsLib) {
@@ -1224,6 +1909,6 @@
     </script>
 
     <!-- Application Script (Cache-Busting) -->
-    <script src="app.js?v=20260902_v1"></script>
+    <script src="app.js?v=20260905_v2"></script>
 </body>
 </html>

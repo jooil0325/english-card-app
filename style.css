@@ -194,41 +194,80 @@ body {
 }
 
 /* Bottom Navigation Centering & Stacking */
+.bottom-nav-bar,
 .bottom-nav {
     position: fixed !important;
     bottom: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
-    max-width: 36rem !important;
+    max-width: 100% !important;
     height: 64px !important;
-    z-index: 999999 !important;
+    z-index: 99999 !important;
     display: flex !important;
     justify-content: space-around !important;
     align-items: center !important;
-    background-color: #ffffff !important;
-    border-top: 1.5px solid rgba(199, 196, 215, 0.6) !important;
-    box-shadow: 0 -4px 30px rgba(70, 72, 212, 0.15) !important;
-    border-radius: 20px 20px 0 0 !important;
-    padding: 6px 16px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(199, 196, 215, 0.4) !important;
+    box-shadow: 0 -4px 25px rgba(70, 72, 212, 0.1) !important;
+    padding: 6px 16px calc(6px + env(safe-area-inset-bottom, 0px)) 16px !important;
 }
 
+.nav-tab-btn,
 .bottom-nav .nav-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 5rem !important;
+    flex: 1 !important;
+    max-width: 90px !important;
     height: 100% !important;
     min-height: 48px !important;
     cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     position: relative !important;
-    padding: 4px 0 !important;
+    padding: 2px 0 !important;
+    background: transparent !important;
+    border: none !important;
+    color: #464554 !important;
+    text-decoration: none !important;
 }
 
-.bottom-nav .nav-item * {
-    pointer-events: none !important;
+.nav-tab-btn .nav-icon-pill {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 52px !important;
+    height: 30px !important;
+    border-radius: 9999px !important;
+    transition: all 0.25s ease !important;
+    color: #464554 !important;
+}
+
+.nav-tab-btn.active .nav-icon-pill {
+    background-color: #e1e0ff !important;
+    color: #4648d4 !important;
+}
+
+.nav-tab-btn.active .nav-label {
+    color: #4648d4 !important;
+    font-weight: 800 !important;
+}
+
+.nav-tab-btn .nav-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    margin-top: 1px !important;
+    color: #464554 !important;
+    transition: color 0.2s ease !important;
+}
+
+/* Ensure content never gets hidden behind bottom nav */
+.app-bottom-space {
+    padding-bottom: 90px !important;
 }
 
 @keyframes fadeIn {
