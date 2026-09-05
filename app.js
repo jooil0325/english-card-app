@@ -3940,7 +3940,6 @@ class EngCardApp {
             } else {
                 // ================= 콤팩트 모드 (Idea 1: 초슬림 1줄 사전식 리스트) =================
                 cardEl = document.createElement('div');
-                cardEl.className = `compact-row flex items-center justify-between py-2.5 px-3 sm:px-4 hover:bg-surface-container-low active:bg-surface-container transition-colors select-none group cursor-pointer w-full ${isSelected ? 'bg-primary/5' : ''}`;
                 cardEl.dataset.id = item.id;
 
                 let compactTextHtml = '';
@@ -4005,7 +4004,7 @@ class EngCardApp {
                     `;
                 }
 
-                cardEl.className = 'compact-row-container relative overflow-hidden rounded-xl bg-surface-container-highest/20 transition-all select-none';
+                cardEl.className = `compact-row-container relative overflow-hidden rounded-xl bg-surface-container-highest/20 transition-all select-none ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`;
                 cardEl.innerHTML = `
                     <!-- Swipe Right background (알았다 / 암기 완료) -->
                     <div class="swipe-bg-right absolute inset-0 bg-emerald-500 text-white flex items-center px-4 font-black text-xs sm:text-sm opacity-0 transition-opacity pointer-events-none z-0">
@@ -4113,6 +4112,7 @@ class EngCardApp {
             });
 
             textWrapper?.addEventListener('click', (e) => {
+                if (cardEl._lastSwipeTime && Date.now() - cardEl._lastSwipeTime < 350) return;
                 if (this.isSelectionMode) {
                     this.toggleSentenceSelection(item.id);
                     return;
@@ -4136,6 +4136,7 @@ class EngCardApp {
 
             if (!isFeed) {
                 cardEl.addEventListener('click', (e) => {
+                    if (cardEl._lastSwipeTime && Date.now() - cardEl._lastSwipeTime < 350) return;
                     if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.card-text-wrapper')) return;
                     textWrapper?.click();
                 });
@@ -4152,6 +4153,7 @@ class EngCardApp {
     }
 
     bindRowSwipeGestures(cardEl, innerEl, overlayLeft, overlayRight, item) {
+        if (!innerEl) return;
         let startX = 0;
         let startY = 0;
         let currentX = 0;
@@ -4159,156 +4161,228 @@ class EngCardApp {
         let isDragging = false;
         let isHorizontalSwipe = false;
         let rowTouchStartTime = Date.now();
-        let activeSwipePointerId = null;
 
-        const onDown = (e) => {
+        const triggerSwipeRight = () => {
+            innerEl.style.transform = 'translateX(120%)';
+            cardEl.classList.add('dismissed');
+
+            const interactStart = parseInt(cardEl.dataset.interactStartTime, 10) || rowTouchStartTime;
+            const latencyMs = Math.max(Date.now() - interactStart, 100);
+            const latencySec = latencyMs / 1000;
+
+            setTimeout(() => {
+                item.memorized = true;
+                item.studyCount = (item.studyCount || 0) + 1;
+                item.lastStudiedAt = getTodayString();
+                if (!item.firstStudiedAt) item.firstStudiedAt = getTodayString();
+
+                if (latencySec >= 4.5) {
+                    item.nextReviewDate = addDaysToDate(getTodayString(), 1);
+                    this.showToast(`✓ [망설임 감지] (${latencySec.toFixed(1)}s): 1일 후 복습`, 'info');
+                } else if (latencySec < 2.0) {
+                    item.intervalStep = Math.min((item.intervalStep || 0) + 2, EBBINGHAUS_INTERVALS.length - 1);
+                    const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
+                    item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
+                    this.showToast(`⚡ [Easy] 쾌속 통과! ${daysToAdd}일 후 복습 (${latencySec.toFixed(1)}s)`, 'success');
+                } else {
+                    item.intervalStep = Math.min((item.intervalStep || 0) + 1, EBBINGHAUS_INTERVALS.length - 1);
+                    const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
+                    item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
+                    this.showToast(`✓ [Good] ${daysToAdd}일 후 복습 예정 (${latencySec.toFixed(1)}s)`, 'success');
+                }
+
+                this.saveState();
+                this.renderSentenceList();
+                this.checkDeckMilestones(item.deckId || this.activeDeckId);
+
+                if (this.isSpeedTriageActive) {
+                    this.startListSpeedSprint(this.listSprintCurrentIndex);
+                }
+            }, 250);
+        };
+
+        const triggerSwipeLeft = () => {
+            innerEl.style.transform = 'translateX(-120%)';
+            cardEl.classList.add('dismissed');
+            setTimeout(() => {
+                item.memorized = false;
+                item.studyCount = (item.studyCount || 0) + 1;
+                item.wrongCount = (item.wrongCount || 0) + 1;
+                item.intervalStep = 0;
+                item.nextReviewDate = getTodayString();
+                item.lastStudiedAt = getTodayString();
+                if (!item.firstStudiedAt) item.firstStudiedAt = getTodayString();
+
+                const currentIdx = this.sentences.findIndex(s => s.id === item.id);
+                if (currentIdx !== -1) {
+                    this.sentences.splice(currentIdx, 1);
+                    const targetIdx = Math.min(currentIdx + 6, this.sentences.length);
+                    this.sentences.splice(targetIdx, 0, item);
+                    this.reassignNo();
+                }
+
+                this.saveState();
+                this.renderSentenceList();
+                this.showToast('🔁 [모름] 6문장 뒤에 다시 테스트합니다!', 'warning');
+
+                if (this.isSpeedTriageActive) {
+                    this.startListSpeedSprint(this.listSprintCurrentIndex);
+                }
+            }, 250);
+        };
+
+        // --- Touch Event Handlers (Mobile) ---
+        const onTouchStart = (e) => {
             if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
-            if (activeSwipePointerId !== null) return;
-
-            activeSwipePointerId = e.pointerId;
-            try { innerEl.setPointerCapture(e.pointerId); } catch (err) {}
-
-            startX = e.clientX;
-            startY = e.clientY;
-            currentX = e.clientX;
-            currentY = e.clientY;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            currentX = touch.clientX;
+            currentY = touch.clientY;
             isDragging = true;
             isHorizontalSwipe = false;
             rowTouchStartTime = Date.now();
             innerEl.style.transition = 'none';
         };
 
-        const onMove = (e) => {
-            if (!isDragging || e.pointerId !== activeSwipePointerId) return;
-            currentX = e.clientX;
-            currentY = e.clientY;
+        const onTouchMove = (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            currentX = touch.clientX;
+            currentY = touch.clientY;
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
 
-            // Preserve vertical scroll if scrolling vertically
-            if (!isHorizontalSwipe && Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
-                isDragging = false;
-                activeSwipePointerId = null;
-                return;
+            if (!isHorizontalSwipe) {
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+                    isDragging = false;
+                    return;
+                }
+                if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    isHorizontalSwipe = true;
+                }
             }
 
-            if (Math.abs(deltaX) > 8) {
-                isHorizontalSwipe = true;
+            if (isHorizontalSwipe) {
+                if (e.cancelable) e.preventDefault();
                 innerEl.style.transform = `translateX(${deltaX}px)`;
                 if (deltaX > 20) {
-                    overlayRight.style.opacity = Math.min((deltaX - 20) / 70, 1);
-                    overlayLeft.style.opacity = 0;
+                    if (overlayRight) overlayRight.style.opacity = Math.min((deltaX - 20) / 70, 1);
+                    if (overlayLeft) overlayLeft.style.opacity = 0;
                 } else if (deltaX < -20) {
-                    overlayLeft.style.opacity = Math.min((-deltaX - 20) / 70, 1);
-                    overlayRight.style.opacity = 0;
+                    if (overlayLeft) overlayLeft.style.opacity = Math.min((-deltaX - 20) / 70, 1);
+                    if (overlayRight) overlayRight.style.opacity = 0;
                 } else {
-                    overlayLeft.style.opacity = 0;
-                    overlayRight.style.opacity = 0;
+                    if (overlayLeft) overlayLeft.style.opacity = 0;
+                    if (overlayRight) overlayRight.style.opacity = 0;
                 }
             }
         };
 
-        const onUp = (e) => {
-            if (!isDragging || e.pointerId !== activeSwipePointerId) return;
+        const onTouchEnd = () => {
+            if (!isDragging) return;
             isDragging = false;
-            activeSwipePointerId = null;
-
             const deltaX = currentX - startX;
             innerEl.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-            if (deltaX > 60) {
-                // Swiped Right -> Known / Memorized with Latency-Aware SRS Intervals
-                innerEl.style.transform = 'translateX(120%)';
-                cardEl.classList.add('dismissed');
+            if (isHorizontalSwipe && Math.abs(deltaX) > 15) {
+                cardEl._lastSwipeTime = Date.now();
+            }
 
-                const interactStart = parseInt(cardEl.dataset.interactStartTime, 10) || rowTouchStartTime;
-                const latencyMs = Math.max(Date.now() - interactStart, 100);
-                const latencySec = latencyMs / 1000;
-
-                setTimeout(() => {
-                    item.memorized = true;
-                    item.studyCount = (item.studyCount || 0) + 1;
-                    item.lastStudiedAt = getTodayString();
-                    if (!item.firstStudiedAt) item.firstStudiedAt = getTodayString();
-
-                    if (latencySec >= 4.5) {
-                        // Hesitant recall: keep interval step, review again next day
-                        item.nextReviewDate = addDaysToDate(getTodayString(), 1);
-                        this.showToast(`✓ [망설임 감지] (${latencySec.toFixed(1)}s): 1일 후 복습`, 'info');
-                    } else if (latencySec < 2.0) {
-                        // Fast recall: fast-track SRS (+2 interval steps)
-                        item.intervalStep = Math.min((item.intervalStep || 0) + 2, EBBINGHAUS_INTERVALS.length - 1);
-                        const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
-                        item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
-                        this.showToast(`⚡ [Easy] 쾌속 통과! ${daysToAdd}일 후 복습 (${latencySec.toFixed(1)}s)`, 'success');
-                    } else {
-                        // Normal fluent recall: advance Ebbinghaus interval (+1 step)
-                        item.intervalStep = Math.min((item.intervalStep || 0) + 1, EBBINGHAUS_INTERVALS.length - 1);
-                        const daysToAdd = EBBINGHAUS_INTERVALS[item.intervalStep];
-                        item.nextReviewDate = addDaysToDate(getTodayString(), daysToAdd);
-                        this.showToast(`✓ [Good] ${daysToAdd}일 후 복습 예정 (${latencySec.toFixed(1)}s)`, 'success');
-                    }
-
-                    this.saveState();
-                    this.renderSentenceList();
-                    this.checkDeckMilestones(item.deckId || this.activeDeckId);
-
-                    if (this.isSpeedTriageActive) {
-                        this.startListSpeedSprint(this.listSprintCurrentIndex);
-                    }
-                }, 250);
-            } else if (deltaX < -60) {
-                // Swiped Left -> Unknown / Unmemorized -> Re-insert 6 items later!
-                innerEl.style.transform = 'translateX(-120%)';
-                cardEl.classList.add('dismissed');
-                setTimeout(() => {
-                    item.memorized = false;
-                    item.studyCount = (item.studyCount || 0) + 1;
-                    item.wrongCount = (item.wrongCount || 0) + 1;
-                    item.intervalStep = 0;
-                    item.nextReviewDate = getTodayString();
-                    item.lastStudiedAt = getTodayString();
-                    if (!item.firstStudiedAt) item.firstStudiedAt = getTodayString();
-
-                    // Smart Loop Re-insertion: Move item 6 slots later in sentences array
-                    const currentIdx = this.sentences.findIndex(s => s.id === item.id);
-                    if (currentIdx !== -1) {
-                        this.sentences.splice(currentIdx, 1);
-                        const targetIdx = Math.min(currentIdx + 6, this.sentences.length);
-                        this.sentences.splice(targetIdx, 0, item);
-                        this.reassignNo();
-                    }
-
-                    this.saveState();
-                    this.renderSentenceList();
-                    this.showToast('🔁 [모름] 6문장 뒤에 다시 테스트합니다!', 'warning');
-
-                    if (this.isSpeedTriageActive) {
-                        this.startListSpeedSprint(this.listSprintCurrentIndex);
-                    }
-                }, 250);
+            if (isHorizontalSwipe && deltaX > 55) {
+                triggerSwipeRight();
+            } else if (isHorizontalSwipe && deltaX < -55) {
+                triggerSwipeLeft();
             } else {
-                // Snap back
                 innerEl.style.transform = 'translateX(0px)';
-                overlayLeft.style.opacity = 0;
-                overlayRight.style.opacity = 0;
+                if (overlayLeft) overlayLeft.style.opacity = 0;
+                if (overlayRight) overlayRight.style.opacity = 0;
             }
         };
 
-        const onCancel = (e) => {
-            if (e.pointerId === activeSwipePointerId) {
-                isDragging = false;
-                activeSwipePointerId = null;
-                innerEl.style.transform = 'translateX(0px)';
-                overlayLeft.style.opacity = 0;
-                overlayRight.style.opacity = 0;
-            }
+        const onTouchCancel = () => {
+            isDragging = false;
+            isHorizontalSwipe = false;
+            innerEl.style.transition = 'transform 0.2s ease';
+            innerEl.style.transform = 'translateX(0px)';
+            if (overlayLeft) overlayLeft.style.opacity = 0;
+            if (overlayRight) overlayRight.style.opacity = 0;
         };
 
-        innerEl.addEventListener('pointerdown', onDown);
-        innerEl.addEventListener('pointermove', onMove);
-        innerEl.addEventListener('pointerup', onUp);
-        innerEl.addEventListener('pointercancel', onCancel);
+        innerEl.addEventListener('touchstart', onTouchStart, { passive: true });
+        innerEl.addEventListener('touchmove', onTouchMove, { passive: false });
+        innerEl.addEventListener('touchend', onTouchEnd);
+        innerEl.addEventListener('touchcancel', onTouchCancel);
+
+        // --- Mouse Event Handlers (Desktop) ---
+        let isMouseDown = false;
+        const onMouseDown = (e) => {
+            if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) return;
+            if (Date.now() - (cardEl._lastSwipeTime || 0) < 500) return;
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            isMouseDown = true;
+            isHorizontalSwipe = false;
+            rowTouchStartTime = Date.now();
+            innerEl.style.transition = 'none';
+
+            const onMouseMove = (ev) => {
+                if (!isMouseDown) return;
+                currentX = ev.clientX;
+                currentY = ev.clientY;
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+
+                if (!isHorizontalSwipe && Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    isHorizontalSwipe = true;
+                }
+
+                if (isHorizontalSwipe) {
+                    innerEl.style.transform = `translateX(${deltaX}px)`;
+                    if (deltaX > 20) {
+                        if (overlayRight) overlayRight.style.opacity = Math.min((deltaX - 20) / 70, 1);
+                        if (overlayLeft) overlayLeft.style.opacity = 0;
+                    } else if (deltaX < -20) {
+                        if (overlayLeft) overlayLeft.style.opacity = Math.min((-deltaX - 20) / 70, 1);
+                        if (overlayRight) overlayRight.style.opacity = 0;
+                    } else {
+                        if (overlayLeft) overlayLeft.style.opacity = 0;
+                        if (overlayRight) overlayRight.style.opacity = 0;
+                    }
+                }
+            };
+
+            const onMouseUp = () => {
+                if (!isMouseDown) return;
+                isMouseDown = false;
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+
+                const deltaX = currentX - startX;
+                innerEl.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+                if (isHorizontalSwipe && Math.abs(deltaX) > 15) {
+                    cardEl._lastSwipeTime = Date.now();
+                }
+
+                if (isHorizontalSwipe && deltaX > 55) {
+                    triggerSwipeRight();
+                } else if (isHorizontalSwipe && deltaX < -55) {
+                    triggerSwipeLeft();
+                } else {
+                    innerEl.style.transform = 'translateX(0px)';
+                    if (overlayLeft) overlayLeft.style.opacity = 0;
+                    if (overlayRight) overlayRight.style.opacity = 0;
+                }
+            };
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        };
+
+        innerEl.addEventListener('mousedown', onMouseDown);
     }
 
     bindCompactRowSwipe(cardEl, innerEl, overlayLeft, overlayRight, item, index) {
@@ -4319,47 +4393,47 @@ class EngCardApp {
         let currentY = 0;
         let isDragging = false;
         let isHorizontalSwipe = false;
-        let activePointerId = null;
 
-        const onDown = (e) => {
+        // --- Touch Event Handlers (Mobile) ---
+        const onTouchStart = (e) => {
             if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
-            if (activePointerId !== null) return;
-
-            activePointerId = e.pointerId;
-            try { innerEl.setPointerCapture(e.pointerId); } catch (err) {}
-
-            startX = e.clientX;
-            startY = e.clientY;
-            currentX = e.clientX;
-            currentY = e.clientY;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            currentX = touch.clientX;
+            currentY = touch.clientY;
             isDragging = true;
             isHorizontalSwipe = false;
             innerEl.style.transition = 'none';
         };
 
-        const onMove = (e) => {
-            if (!isDragging || e.pointerId !== activePointerId) return;
-            currentX = e.clientX;
-            currentY = e.clientY;
+        const onTouchMove = (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            currentX = touch.clientX;
+            currentY = touch.clientY;
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
 
-            // If scrolling vertically, let the page scroll naturally
-            if (!isHorizontalSwipe && Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
-                isDragging = false;
-                activePointerId = null;
-                return;
+            // Determine if horizontal swipe vs vertical scroll
+            if (!isHorizontalSwipe) {
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+                    isDragging = false;
+                    return;
+                }
+                if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    isHorizontalSwipe = true;
+                }
             }
 
-            if (Math.abs(deltaX) > 8) {
-                isHorizontalSwipe = true;
-                if (e.cancelable) e.preventDefault();
+            if (isHorizontalSwipe) {
+                if (e.cancelable) e.preventDefault(); // Crucial on mobile: prevent native scroll hijack
                 innerEl.style.transform = `translateX(${deltaX}px)`;
-                if (deltaX > 20) {
-                    if (overlayRight) overlayRight.style.opacity = Math.min((deltaX - 20) / 60, 1);
+                if (deltaX > 15) {
+                    if (overlayRight) overlayRight.style.opacity = Math.min((deltaX - 15) / 55, 1);
                     if (overlayLeft) overlayLeft.style.opacity = 0;
-                } else if (deltaX < -20) {
-                    if (overlayLeft) overlayLeft.style.opacity = Math.min((-deltaX - 20) / 60, 1);
+                } else if (deltaX < -15) {
+                    if (overlayLeft) overlayLeft.style.opacity = Math.min((-deltaX - 15) / 55, 1);
                     if (overlayRight) overlayRight.style.opacity = 0;
                 } else {
                     if (overlayLeft) overlayLeft.style.opacity = 0;
@@ -4368,15 +4442,17 @@ class EngCardApp {
             }
         };
 
-        const onUp = (e) => {
-            if (!isDragging || e.pointerId !== activePointerId) return;
+        const onTouchEnd = () => {
+            if (!isDragging) return;
             isDragging = false;
-            activePointerId = null;
-
             const deltaX = currentX - startX;
             innerEl.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-            if (deltaX > 60) {
+            if (isHorizontalSwipe && Math.abs(deltaX) > 15) {
+                cardEl._lastSwipeTime = Date.now();
+            }
+
+            if (isHorizontalSwipe && deltaX > 50) {
                 // Swiped Right -> Known / Memorized
                 innerEl.style.transform = 'translateX(120%)';
                 this.triggerHaptic('medium');
@@ -4387,7 +4463,7 @@ class EngCardApp {
                         this.handleCompactMarkMemorized(item, true);
                     }
                 }, 180);
-            } else if (deltaX < -60) {
+            } else if (isHorizontalSwipe && deltaX < -50) {
                 // Swiped Left -> Unknown / Hard
                 innerEl.style.transform = 'translateX(-120%)';
                 this.triggerHaptic('light');
@@ -4406,20 +4482,104 @@ class EngCardApp {
             }
         };
 
-        const onCancel = (e) => {
-            if (e.pointerId === activePointerId) {
-                isDragging = false;
-                activePointerId = null;
-                innerEl.style.transform = 'translateX(0)';
-                if (overlayLeft) overlayLeft.style.opacity = 0;
-                if (overlayRight) overlayRight.style.opacity = 0;
-            }
+        const onTouchCancel = () => {
+            isDragging = false;
+            isHorizontalSwipe = false;
+            innerEl.style.transition = 'transform 0.2s ease';
+            innerEl.style.transform = 'translateX(0)';
+            if (overlayLeft) overlayLeft.style.opacity = 0;
+            if (overlayRight) overlayRight.style.opacity = 0;
         };
 
-        innerEl.addEventListener('pointerdown', onDown);
-        innerEl.addEventListener('pointermove', onMove);
-        innerEl.addEventListener('pointerup', onUp);
-        innerEl.addEventListener('pointercancel', onCancel);
+        innerEl.addEventListener('touchstart', onTouchStart, { passive: true });
+        innerEl.addEventListener('touchmove', onTouchMove, { passive: false });
+        innerEl.addEventListener('touchend', onTouchEnd);
+        innerEl.addEventListener('touchcancel', onTouchCancel);
+
+        // --- Mouse Event Handlers (Desktop) ---
+        let isMouseDown = false;
+        const onMouseDown = (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+            if (Date.now() - (cardEl._lastSwipeTime || 0) < 500) return;
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            isMouseDown = true;
+            isHorizontalSwipe = false;
+            innerEl.style.transition = 'none';
+
+            const onMouseMove = (ev) => {
+                if (!isMouseDown) return;
+                currentX = ev.clientX;
+                currentY = ev.clientY;
+                const deltaX = currentX - startX;
+                const deltaY = currentY - startY;
+
+                if (!isHorizontalSwipe && Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                    isHorizontalSwipe = true;
+                }
+
+                if (isHorizontalSwipe) {
+                    innerEl.style.transform = `translateX(${deltaX}px)`;
+                    if (deltaX > 15) {
+                        if (overlayRight) overlayRight.style.opacity = Math.min((deltaX - 15) / 55, 1);
+                        if (overlayLeft) overlayLeft.style.opacity = 0;
+                    } else if (deltaX < -15) {
+                        if (overlayLeft) overlayLeft.style.opacity = Math.min((-deltaX - 15) / 55, 1);
+                        if (overlayRight) overlayRight.style.opacity = 0;
+                    } else {
+                        if (overlayLeft) overlayLeft.style.opacity = 0;
+                        if (overlayRight) overlayRight.style.opacity = 0;
+                    }
+                }
+            };
+
+            const onMouseUp = () => {
+                if (!isMouseDown) return;
+                isMouseDown = false;
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+
+                const deltaX = currentX - startX;
+                innerEl.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+                if (isHorizontalSwipe && Math.abs(deltaX) > 15) {
+                    cardEl._lastSwipeTime = Date.now();
+                }
+
+                if (isHorizontalSwipe && deltaX > 50) {
+                    innerEl.style.transform = 'translateX(120%)';
+                    this.triggerHaptic('medium');
+                    setTimeout(() => {
+                        if (this.isDrillMode) {
+                            this.handleDrillAnswer(item.id, true);
+                        } else {
+                            this.handleCompactMarkMemorized(item, true);
+                        }
+                    }, 180);
+                } else if (isHorizontalSwipe && deltaX < -50) {
+                    innerEl.style.transform = 'translateX(-120%)';
+                    this.triggerHaptic('light');
+                    setTimeout(() => {
+                        if (this.isDrillMode) {
+                            this.handleDrillAnswer(item.id, false);
+                        } else {
+                            this.handleCompactMarkHard(item);
+                        }
+                    }, 180);
+                } else {
+                    innerEl.style.transform = 'translateX(0)';
+                    if (overlayLeft) overlayLeft.style.opacity = 0;
+                    if (overlayRight) overlayRight.style.opacity = 0;
+                }
+            };
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        };
+
+        innerEl.addEventListener('mousedown', onMouseDown);
     }
 
     /* Ebbinghaus Notification Check */

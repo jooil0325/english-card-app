@@ -368,6 +368,16 @@ body {
     background-color: var(--surface-container-low);
 }
 
+.swipe-card-inner,
+.compact-row-inner,
+.swipe-card-item,
+.compact-row-container {
+    touch-action: pan-y;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 .swipe-card-inner {
     display: flex;
     flex-direction: column;
