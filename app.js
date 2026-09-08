@@ -9046,44 +9046,81 @@ ${previews}${restStr}
         const filename = `TUK_낭독인증_${todayStr}_${count}문장.${ext}`;
         const shareText = this.getRecitationSummaryText();
 
-        let audioFile = null;
-        try {
-            audioFile = new File([this.recitationState.audioBlob], filename, { type: this.recitationState.mimeType || 'audio/webm' });
-        } catch (e) {
-            console.warn('File constructor error:', e);
-        }
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        if (audioFile && navigator.canShare && navigator.canShare({ files: [audioFile] })) {
+        // Mobile: Web Share API (KakaoTalk app, etc.)
+        if (isMobile && navigator.share) {
+            let audioFile = null;
+            if (this.recitationState.audioBlob) {
+                try {
+                    audioFile = new File([this.recitationState.audioBlob], filename, { type: this.recitationState.mimeType || 'audio/webm' });
+                } catch (e) {}
+            }
+
             try {
-                await navigator.share({
-                    title: 'TUK 영어 낭독 완독 인증',
-                    text: shareText,
-                    files: [audioFile]
-                });
-                this.showToast('✨ 카톡 / 커뮤니티 공유가 완료되었습니다!', 'success');
-                return;
+                if (audioFile && navigator.canShare && navigator.canShare({ files: [audioFile] })) {
+                    await navigator.share({
+                        title: 'TUK 영어 낭독 완독 인증',
+                        text: shareText,
+                        files: [audioFile]
+                    });
+                    this.showToast('✨ 카톡 / 커뮤니티 공유가 완료되었습니다!', 'success');
+                    return;
+                } else {
+                    await navigator.share({
+                        title: 'TUK 영어 낭독 완독 인증',
+                        text: shareText
+                    });
+                    this.showToast('✨ 카톡 / 커뮤니티 공유가 완료되었습니다!', 'success');
+                    return;
+                }
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                console.warn('Navigator file share failed, fallback to copy+download:', err);
+                console.warn('Mobile share failed, falling back to clipboard copy:', err);
             }
         }
 
-        // Fallback for PC / unsupported browsers:
-        try {
-            await navigator.clipboard.writeText(shareText);
-        } catch (e) {
+        // PC or Fallback: Direct Clipboard Copy of Certification Report Text
+        let copied = false;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+                await navigator.clipboard.writeText(shareText);
+                copied = true;
+            } catch (err) {
+                console.warn('Clipboard writeText failed:', err);
+            }
+        }
+
+        if (!copied) {
             const ta = document.createElement('textarea');
             ta.value = shareText;
             ta.style.position = 'fixed';
+            ta.style.opacity = '0';
             ta.style.left = '-9999px';
             document.body.appendChild(ta);
+            ta.focus();
             ta.select();
-            document.execCommand('copy');
+            try {
+                copied = document.execCommand('copy');
+            } catch (e) {}
             document.body.removeChild(ta);
         }
 
-        this.downloadRecitationAudio();
-        this.showToast('📋 인증 텍스트가 복사되었고 오디오가 저장되었습니다! 카톡방에 붙여넣기(Ctrl+V)하세요.', 'success');
+        // Visual feedback on button
+        if (this.btnShareRecitation) {
+            const originalHtml = this.btnShareRecitation.innerHTML;
+            this.btnShareRecitation.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span><span>인증 텍스트 복사 완료!</span>';
+            this.btnShareRecitation.classList.add('bg-emerald-600');
+            setTimeout(() => {
+                if (this.btnShareRecitation) {
+                    this.btnShareRecitation.innerHTML = originalHtml;
+                    this.btnShareRecitation.classList.remove('bg-emerald-600');
+                }
+            }, 2500);
+        }
+
+        this.triggerHaptic('success');
+        this.showToast('📋 낭독 인증 리포트가 복사되었습니다! 카톡 대화창에 Ctrl+V로 붙여넣으세요.', 'success');
     }
 
     applyRecitationToStudy() {
