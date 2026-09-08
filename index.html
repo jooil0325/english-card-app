@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- TUK Master Stylesheet (Cache-Busting) -->
-    <link rel="stylesheet" href="style.css?v=20260902_v2">
+    <link rel="stylesheet" href="style.css?v=20260908_recite">
     <style>
         .bottom-nav-bar {
             position: fixed !important;
@@ -401,6 +401,10 @@
                     <button id="btnToggleGlobalHint" class="p-1 rounded-lg border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container transition-all font-bold text-xs flex items-center shadow-2xs active:scale-95 cursor-pointer" title="첫 글자 힌트 토글">
                         <span class="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
                     </button>
+                    <!-- 연속 낭독 녹음 & 인증 버튼 -->
+                    <button id="btnOpenRecitationStudio" class="p-1 rounded-lg border border-secondary/40 bg-surface text-secondary hover:bg-secondary/10 transition-all font-bold text-xs flex items-center shadow-2xs active:scale-95 cursor-pointer" title="연속 낭독 녹음 및 카톡 인증 공유 (단축키: M)">
+                        <span class="material-symbols-outlined text-[15px] text-secondary">mic</span>
+                    </button>
                     <!-- 검색창 토글 -->
                     <button id="btnToggleSearch" class="p-1 rounded-lg border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container transition-all shadow-2xs cursor-pointer" title="검색창 열기">
                         <span class="material-symbols-outlined text-[15px]">search</span>
@@ -694,6 +698,9 @@
                 <span id="bulkSelectCount" class="font-bold text-xs">0개 선택됨</span>
                 <div class="flex items-center gap-1.5">
                     <button id="btnSelectAll" class="text-xs px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-all">전체</button>
+                    <button id="btnReciteSelected" class="text-xs px-2.5 py-1 rounded-full bg-secondary text-on-secondary hover:opacity-90 font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer" title="선택 문장 연속 낭독 녹음">
+                        <span class="material-symbols-outlined text-[15px]">mic</span> 낭독
+                    </button>
                     <button id="btnMoveSelected" class="text-xs px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-all flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">drive_file_move</span> 덱 이동
                     </button>
@@ -1894,6 +1901,123 @@
         </div>
     </div>
 
+    <!-- ==========================================================================
+         MODAL: 연속 낭독 스튜디오 (Continuous Recitation Studio)
+         ========================================================================== -->
+    <div id="modalRecitationStudio" class="modal fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 pb-6 sm:p-4 hidden">
+        <div class="bg-surface rounded-3xl w-full max-w-lg max-h-[88vh] sm:max-h-[92vh] flex flex-col shadow-2xl border border-outline-variant/30 overflow-hidden animate-fade-in-up">
+            
+            <!-- Header -->
+            <div class="p-4 sm:p-5 border-b border-outline-variant/20 flex items-center justify-between bg-surface-container-lowest">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-[20px]">mic</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-extrabold text-base text-on-surface">연속 낭독 인증 세션</h3>
+                            <span id="reciteSentenceCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-secondary/10 text-secondary border border-secondary/20">
+                                0개 문장
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-on-surface-variant font-medium mt-0.5">대본을 보며 소리 내어 읽고 1개 파일로 카톡에 인증하세요</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Live Recording Status Badge -->
+                    <div id="reciteRecordingStatus" class="hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-error text-xs font-black animate-pulse">
+                        <span class="w-2 h-2 rounded-full bg-error"></span>
+                        <span id="reciteLiveTimer">00:00</span>
+                    </div>
+                    <button id="btnCloseRecitationStudio" class="p-1.5 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer" title="닫기">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scope / Filter Quick Chips -->
+            <div class="px-4 py-2 bg-surface-container-low/50 border-b border-outline-variant/15 flex items-center justify-between gap-2 text-xs">
+                <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5" id="reciteScopeChips">
+                    <button class="recite-scope-chip px-2.5 py-1 rounded-lg bg-secondary text-white font-bold text-[11px] transition-all" data-scope="target">오늘 목표 (<span id="chipTargetCount">20</span>)</button>
+                    <button class="recite-scope-chip px-2.5 py-1 rounded-lg bg-surface text-on-surface-variant border border-outline-variant/25 font-bold text-[11px] hover:text-on-surface transition-all" data-scope="due">오늘 복습 (<span id="chipDueCount">0</span>)</button>
+                    <button class="recite-scope-chip px-2.5 py-1 rounded-lg bg-surface text-on-surface-variant border border-outline-variant/25 font-bold text-[11px] hover:text-on-surface transition-all" data-scope="all">현재 덱 전체</button>
+                </div>
+                <span class="text-[11px] text-outline flex-shrink-0">📜 프롬프터</span>
+            </div>
+
+            <!-- Teleprompter Script Body (Scrollable) -->
+            <div id="recitationScriptContainer" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 bg-surface text-left">
+                <!-- Dynamically populated sentence cards -->
+            </div>
+
+            <!-- Control Bar / Result Panel -->
+            <div class="p-4 sm:p-5 border-t border-outline-variant/20 bg-surface-container-lowest flex flex-col gap-3">
+                
+                <!-- State 1: Idle (녹음 전) -->
+                <div id="reciteIdleControls" class="flex items-center gap-2">
+                    <button id="btnStartRecitation" class="flex-1 py-3 px-4 rounded-2xl bg-secondary text-white font-extrabold text-sm hover:opacity-95 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]">mic</span>
+                        <span>낭독 녹음 시작 (전체 완독)</span>
+                    </button>
+                </div>
+
+                <!-- State 2: Recording (녹음 중) -->
+                <div id="reciteActiveControls" class="hidden flex items-center gap-2">
+                    <button id="btnStopRecitation" class="flex-1 py-3 px-4 rounded-2xl bg-error text-white font-extrabold text-sm hover:bg-error/90 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]">stop_circle</span>
+                        <span>⏹️ 낭독 완료 (녹음 끝내기)</span>
+                    </button>
+                </div>
+
+                <!-- State 3: Completed Results (녹음 완료 후 재생 & 공유) -->
+                <div id="recitationResultPanel" class="hidden flex flex-col gap-3 animate-fade-in-up">
+                    <div class="flex items-center justify-between bg-secondary/10 border border-secondary/20 rounded-2xl p-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🎉</span>
+                            <div>
+                                <div class="font-extrabold text-xs text-on-surface">낭독 녹음 완료!</div>
+                                <div class="text-[11px] text-on-surface-variant font-medium mt-0.5">
+                                    총 <span id="resSentenceCount" class="font-bold text-secondary">0</span>문장 완독 • 
+                                    시간: <span id="resDurationStr" class="font-bold text-on-surface">00:00</span>
+                                    <span id="resWpmBadge" class="ml-1 px-1.5 py-0.2 rounded bg-surface border border-outline-variant/25 text-[10px] font-mono font-bold text-secondary">0 WPM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btnRestartRecitation" class="p-1.5 rounded-xl hover:bg-surface text-on-surface-variant text-xs flex items-center gap-1 font-semibold border border-outline-variant/20 transition-all cursor-pointer" title="처음부터 다시 녹음">
+                            <span class="material-symbols-outlined text-[16px]">replay</span> 다시
+                        </button>
+                    </div>
+
+                    <!-- Single Consolidated Audio Player -->
+                    <div class="w-full bg-surface-container-low p-2.5 rounded-2xl border border-outline-variant/20 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-on-surface-variant px-1">
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-secondary">graphic_eq</span> 내 낭독 녹음본 (단일 파일)</span>
+                            <span id="resAudioTimeDisplay" class="font-mono text-outline">00:00</span>
+                        </div>
+                        <audio id="recitationAudioPlayer" controls class="w-full h-8 rounded-lg" style="outline: none;"></audio>
+                    </div>
+
+                    <!-- Action Buttons: Share & Save & Apply Study -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnShareRecitation" class="py-2.5 px-3 rounded-xl bg-primary text-white font-extrabold text-xs hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">share</span>
+                            <span>카톡 / 커뮤니티 공유</span>
+                        </button>
+                        <button id="btnDownloadRecitation" class="py-2.5 px-3 rounded-xl bg-surface border border-outline-variant/30 text-on-surface font-extrabold text-xs hover:border-primary hover:text-primary active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">download</span>
+                            <span>오디오 파일 저장</span>
+                        </button>
+                    </div>
+                    <button id="btnApplyStudyRecitation" class="w-full py-2 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                        <span>오늘 학습 기록에 낭독 완료 반영</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Deferred Heavy Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
@@ -1909,6 +2033,6 @@
     </script>
 
     <!-- Application Script (Cache-Busting) -->
-    <script src="app.js?v=20260905_v2"></script>
+    <script src="app.js?v=20260908_recite"></script>
 </body>
 </html>

@@ -436,6 +436,33 @@ class EngCardApp {
         this.btnFinishVoiceShadowing = document.getElementById('btnFinishVoiceShadowing');
         this.voiceDiffContainer = document.getElementById('voiceDiffContainer');
 
+        // Continuous Teleprompter Recitation Studio Elements
+        this.btnOpenRecitationStudio = document.getElementById('btnOpenRecitationStudio');
+        this.btnReciteSelected = document.getElementById('btnReciteSelected');
+        this.modalRecitationStudio = document.getElementById('modalRecitationStudio');
+        this.btnCloseRecitationStudio = document.getElementById('btnCloseRecitationStudio');
+        this.reciteSentenceCountBadge = document.getElementById('reciteSentenceCountBadge');
+        this.reciteRecordingStatus = document.getElementById('reciteRecordingStatus');
+        this.reciteLiveTimer = document.getElementById('reciteLiveTimer');
+        this.reciteScopeChips = document.querySelectorAll('.recite-scope-chip');
+        this.chipTargetCount = document.getElementById('chipTargetCount');
+        this.chipDueCount = document.getElementById('chipDueCount');
+        this.recitationScriptContainer = document.getElementById('recitationScriptContainer');
+        this.reciteIdleControls = document.getElementById('reciteIdleControls');
+        this.btnStartRecitation = document.getElementById('btnStartRecitation');
+        this.reciteActiveControls = document.getElementById('reciteActiveControls');
+        this.btnStopRecitation = document.getElementById('btnStopRecitation');
+        this.recitationResultPanel = document.getElementById('recitationResultPanel');
+        this.resSentenceCount = document.getElementById('resSentenceCount');
+        this.resDurationStr = document.getElementById('resDurationStr');
+        this.resWpmBadge = document.getElementById('resWpmBadge');
+        this.btnRestartRecitation = document.getElementById('btnRestartRecitation');
+        this.resAudioTimeDisplay = document.getElementById('resAudioTimeDisplay');
+        this.recitationAudioPlayer = document.getElementById('recitationAudioPlayer');
+        this.btnShareRecitation = document.getElementById('btnShareRecitation');
+        this.btnDownloadRecitation = document.getElementById('btnDownloadRecitation');
+        this.btnApplyStudyRecitation = document.getElementById('btnApplyStudyRecitation');
+
         // Session Progress & Complete Modal Elements
         this.sessionProgressBadge = document.getElementById('sessionProgressBadge');
         this.sessionQueueCount = document.getElementById('sessionQueueCount');
@@ -1156,6 +1183,33 @@ class EngCardApp {
         this.btnCloseMoveDeckModal?.addEventListener('click', () => this.closeMoveDeckModal());
         this.btnConfirmMoveDeck?.addEventListener('click', () => this.confirmMoveDeck());
 
+        // Continuous Teleprompter Recitation Studio Controls
+        this.btnOpenRecitationStudio?.addEventListener('click', () => this.openRecitationStudio());
+        this.btnReciteSelected?.addEventListener('click', () => {
+            if (this.selectedSentenceIds && this.selectedSentenceIds.size > 0) {
+                const selectedSentences = this.sentences.filter(s => this.selectedSentenceIds.has(s.id));
+                this.openRecitationStudio(selectedSentences, 'selected');
+            } else {
+                this.openRecitationStudio();
+            }
+        });
+        this.btnCloseRecitationStudio?.addEventListener('click', () => this.closeRecitationStudio());
+        this.modalRecitationStudio?.addEventListener('click', (e) => {
+            if (e.target === this.modalRecitationStudio) this.closeRecitationStudio();
+        });
+        this.reciteScopeChips?.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const scope = chip.dataset.scope;
+                this.switchRecitationScope(scope);
+            });
+        });
+        this.btnStartRecitation?.addEventListener('click', () => this.startRecitationRecording());
+        this.btnStopRecitation?.addEventListener('click', () => this.stopRecitationRecording());
+        this.btnRestartRecitation?.addEventListener('click', () => this.restartRecitationRecording());
+        this.btnShareRecitation?.addEventListener('click', () => this.shareRecitationSession());
+        this.btnDownloadRecitation?.addEventListener('click', () => this.downloadRecitationAudio());
+        this.btnApplyStudyRecitation?.addEventListener('click', () => this.applyRecitationToStudy());
+
         // Sentence Edit Modal Controls
         this.btnCardEdit?.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1287,6 +1341,7 @@ class EngCardApp {
                 if (this.deckModal && !this.deckModal.classList.contains('hidden')) this.closeDeckModal();
                 if (this.moveDeckModal && !this.moveDeckModal.classList.contains('hidden')) this.closeMoveDeckModal();
                 if (this.goalModal && !this.goalModal.classList.contains('hidden')) this.closeGoalModal();
+                if (this.modalRecitationStudio && !this.modalRecitationStudio.classList.contains('hidden')) this.closeRecitationStudio();
             }
         });
     }
@@ -2049,6 +2104,10 @@ class EngCardApp {
                     this.closeShareModal();
                     return;
                 }
+                if (this.modalRecitationStudio && !this.modalRecitationStudio.classList.contains('hidden')) {
+                    this.closeRecitationStudio();
+                    return;
+                }
                 if (isEditing) {
                     e.target.blur();
                     return;
@@ -2058,6 +2117,13 @@ class EngCardApp {
 
             // When user is typing inside textboxes, don't hijack keyboard inputs
             if (isEditing) return;
+
+            // Recitation Studio Shortcut (Alt+M or Ctrl+M)
+            if ((e.altKey || e.ctrlKey) && (e.key === 'm' || e.key === 'M')) {
+                e.preventDefault();
+                this.openRecitationStudio();
+                return;
+            }
 
             // Global 1: Shortcuts Help Modal Toggle ('?' or 'F1')
             if (e.key === '?' || (e.shiftKey && e.key === '/') || e.key === 'F1') {
@@ -2917,7 +2983,8 @@ class EngCardApp {
             this.sessionCompleteModal,
             this.goalModal,
             this.deckModal,
-            this.moveDeckModal
+            this.moveDeckModal,
+            this.modalRecitationStudio
         ].some(m => m && !m.classList.contains('hidden'));
     }
 
@@ -8559,6 +8626,501 @@ class EngCardApp {
         }
     }
 }
+
+    /* ==========================================================================
+       Continuous Teleprompter Recitation Studio Engine (추천 1번)
+       - 단일 세션 다중 문장 완독 텔레프롬프터
+       - 단 1개의 오디오 녹음 파일 생성 (MediaRecorder Opus/WebM/MP4)
+       - 카톡/커뮤니티 1초 공유 & 오디오 파일 저장 & 오늘 학습 기록 반영
+       ========================================================================== */
+    getTodayDueSentencesCount() {
+        const active = this.getActiveSentences();
+        const today = getTodayString();
+        const yesterday = getYesterdayString();
+        return active.filter(s => {
+            const isStudied = (s.studyCount || 0) > 0 || Boolean(s.lastStudiedAt) || (s.wrongCount || 0) > 0;
+            if (!isStudied) return false;
+            if (s.memorized) return false;
+            if (s.nextReviewDate && s.nextReviewDate <= today) return true;
+            if (s.lastStudiedAt && s.lastStudiedAt === yesterday) return true;
+            if ((s.wrongCount || 0) >= 1 && s.lastStudiedAt && s.lastStudiedAt <= today) return true;
+            return false;
+        }).length;
+    }
+
+    openRecitationStudio(customList = null, initialScope = 'target') {
+        this.pauseSpeedTriage();
+        if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
+
+        // Reset recording session state
+        this.recitationState = {
+            active: false,
+            sentences: [],
+            scope: initialScope,
+            mediaRecorder: null,
+            audioStream: null,
+            audioChunks: [],
+            audioBlob: null,
+            audioUrl: null,
+            startTime: null,
+            elapsedSeconds: 0,
+            timerInterval: null
+        };
+
+        // Update Quick Scope Count Badges
+        const targetCount = Math.min(this.getTodayFocusSentences().length, 20);
+        const dueCount = this.getTodayDueSentencesCount();
+        if (this.chipTargetCount) this.chipTargetCount.textContent = targetCount;
+        if (this.chipDueCount) this.chipDueCount.textContent = dueCount;
+
+        if (customList && customList.length > 0) {
+            this.recitationState.sentences = [...customList];
+            this.recitationState.scope = 'selected';
+            this.updateRecitationScopeChipsUI('selected');
+            this.renderRecitationScript();
+        } else {
+            this.switchRecitationScope(initialScope, false);
+        }
+
+        // Reset UI panels to State 1 (Idle)
+        if (this.reciteIdleControls) this.reciteIdleControls.classList.remove('hidden');
+        if (this.reciteActiveControls) this.reciteActiveControls.classList.add('hidden');
+        if (this.recitationResultPanel) this.recitationResultPanel.classList.add('hidden');
+        if (this.reciteRecordingStatus) this.reciteRecordingStatus.classList.add('hidden');
+        if (this.reciteLiveTimer) this.reciteLiveTimer.textContent = '00:00';
+        if (this.recitationAudioPlayer) {
+            this.recitationAudioPlayer.pause();
+            this.recitationAudioPlayer.removeAttribute('src');
+        }
+        if (this.btnApplyStudyRecitation) {
+            this.btnApplyStudyRecitation.disabled = false;
+            this.btnApplyStudyRecitation.innerHTML = '<span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span><span>오늘 학습 기록에 낭독 완료 반영</span>';
+        }
+
+        try { window.history.pushState({ modalOpen: true }, ''); } catch (e) {}
+        if (this.modalRecitationStudio) {
+            this.modalRecitationStudio.classList.remove('hidden');
+            if (this.recitationScriptContainer) this.recitationScriptContainer.scrollTop = 0;
+        }
+    }
+
+    closeRecitationStudio() {
+        if (this.recitationState.mediaRecorder && this.recitationState.mediaRecorder.state === 'recording') {
+            try { this.recitationState.mediaRecorder.stop(); } catch (e) {}
+        }
+        if (this.recitationState.audioStream) {
+            try {
+                this.recitationState.audioStream.getTracks().forEach(t => t.stop());
+            } catch (e) {}
+            this.recitationState.audioStream = null;
+        }
+        if (this.recitationState.timerInterval) {
+            clearInterval(this.recitationState.timerInterval);
+            this.recitationState.timerInterval = null;
+        }
+        if (this.recitationAudioPlayer) {
+            this.recitationAudioPlayer.pause();
+        }
+        if (this.modalRecitationStudio) {
+            this.modalRecitationStudio.classList.add('hidden');
+        }
+        this.resumeSpeedTriage();
+    }
+
+    switchRecitationScope(scope, shouldRerender = true) {
+        this.recitationState.scope = scope;
+        let list = [];
+
+        if (scope === 'target') {
+            list = this.getTodayFocusSentences().slice(0, 20);
+            if (list.length === 0) {
+                list = this.getActiveSentences().slice(0, 20);
+            }
+        } else if (scope === 'due') {
+            const active = this.getActiveSentences();
+            const today = getTodayString();
+            const yesterday = getYesterdayString();
+            list = active.filter(s => {
+                const isStudied = (s.studyCount || 0) > 0 || Boolean(s.lastStudiedAt) || (s.wrongCount || 0) > 0;
+                if (!isStudied) return false;
+                if (s.memorized) return false;
+                if (s.nextReviewDate && s.nextReviewDate <= today) return true;
+                if (s.lastStudiedAt && s.lastStudiedAt === yesterday) return true;
+                if ((s.wrongCount || 0) >= 1 && s.lastStudiedAt && s.lastStudiedAt <= today) return true;
+                return false;
+            });
+            if (list.length === 0) {
+                list = this.getTodayFocusSentences().slice(0, 20);
+            }
+        } else if (scope === 'all') {
+            list = this.getActiveSentences();
+        } else if (scope === 'selected') {
+            if (this.selectedSentenceIds && this.selectedSentenceIds.size > 0) {
+                list = this.sentences.filter(s => this.selectedSentenceIds.has(s.id));
+            } else {
+                list = this.getTodayFocusSentences().slice(0, 20);
+            }
+        }
+
+        this.recitationState.sentences = list;
+        this.updateRecitationScopeChipsUI(scope);
+        this.renderRecitationScript();
+    }
+
+    updateRecitationScopeChipsUI(activeScope) {
+        if (!this.reciteScopeChips) return;
+        this.reciteScopeChips.forEach(chip => {
+            const s = chip.dataset.scope;
+            if (s === activeScope) {
+                chip.className = 'recite-scope-chip px-2.5 py-1 rounded-lg bg-secondary text-white font-bold text-[11px] shadow-2xs transition-all';
+            } else {
+                chip.className = 'recite-scope-chip px-2.5 py-1 rounded-lg bg-surface text-on-surface-variant border border-outline-variant/25 font-bold text-[11px] hover:text-on-surface transition-all';
+            }
+        });
+    }
+
+    renderRecitationScript() {
+        if (!this.recitationScriptContainer) return;
+        const list = this.recitationState.sentences || [];
+        if (this.reciteSentenceCountBadge) {
+            this.reciteSentenceCountBadge.textContent = `${list.length}개 문장`;
+        }
+
+        if (list.length === 0) {
+            this.recitationScriptContainer.innerHTML = `
+                <div class="py-12 text-center text-on-surface-variant flex flex-col items-center gap-2">
+                    <span class="material-symbols-outlined text-4xl text-outline">description</span>
+                    <p class="text-sm font-semibold">낭독할 문장이 없습니다.</p>
+                    <p class="text-xs text-outline">덱을 변경하거나 새 문장을 추가해주세요.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const html = list.map((s, idx) => {
+            const safeEng = (s.english || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
+                <div class="recite-card p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 hover:border-secondary/30 transition-all flex flex-col gap-2 relative shadow-2xs" data-index="${idx}">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded-md bg-surface-container text-secondary font-black text-xs font-mono tracking-wider">${String(idx + 1).padStart(2, '0')}</span>
+                        <button class="p-1 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all cursor-pointer" title="듣기" onclick="event.stopPropagation(); window.app && window.app.speakText('${safeEng}')">
+                            <span class="material-symbols-outlined text-[18px]">volume_up</span>
+                        </button>
+                    </div>
+                    <div class="text-[15px] sm:text-base font-bold text-on-surface leading-snug tracking-tight font-sans select-text">
+                        ${this.escapeHtml(s.english || '')}
+                    </div>
+                    <div class="text-xs sm:text-sm text-on-surface-variant font-medium select-text">
+                        ${this.escapeHtml(s.korean || '')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        this.recitationScriptContainer.innerHTML = html;
+    }
+
+    async startRecitationRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            this.showToast('이 브라우저에서는 오디오 녹음을 지원하지 않습니다.', 'error');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.recitationState.audioStream = stream;
+        } catch (err) {
+            console.error('Microphone access error:', err);
+            this.showToast('마이크 권한이 필요합니다. 브라우저에서 마이크를 허용해주세요.', 'error');
+            return;
+        }
+
+        let mimeType = '';
+        const candidateTypes = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/mp4',
+            'audio/aac',
+            'audio/ogg'
+        ];
+        for (const type of candidateTypes) {
+            if (window.MediaRecorder && MediaRecorder.isTypeSupported(type)) {
+                mimeType = type;
+                break;
+            }
+        }
+
+        try {
+            const options = mimeType ? { mimeType } : {};
+            const mediaRecorder = new MediaRecorder(this.recitationState.audioStream, options);
+            this.recitationState.mediaRecorder = mediaRecorder;
+            this.recitationState.audioChunks = [];
+            this.recitationState.mimeType = mimeType || 'audio/webm';
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                    this.recitationState.audioChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                this.handleRecitationRecordingComplete();
+            };
+
+            mediaRecorder.start(1000);
+            this.recitationState.active = true;
+            this.recitationState.startTime = Date.now();
+            this.recitationState.elapsedSeconds = 0;
+
+            // UI Transitions to State 2 (Recording)
+            if (this.reciteIdleControls) this.reciteIdleControls.classList.add('hidden');
+            if (this.reciteActiveControls) this.reciteActiveControls.classList.remove('hidden');
+            if (this.recitationResultPanel) this.recitationResultPanel.classList.add('hidden');
+            if (this.reciteRecordingStatus) this.reciteRecordingStatus.classList.remove('hidden');
+            if (this.reciteLiveTimer) this.reciteLiveTimer.textContent = '00:00';
+
+            if (this.recitationState.timerInterval) clearInterval(this.recitationState.timerInterval);
+            this.recitationState.timerInterval = setInterval(() => {
+                const sec = Math.floor((Date.now() - this.recitationState.startTime) / 1000);
+                this.recitationState.elapsedSeconds = sec;
+                const m = String(Math.floor(sec / 60)).padStart(2, '0');
+                const s = String(sec % 60).padStart(2, '0');
+                if (this.reciteLiveTimer) this.reciteLiveTimer.textContent = `${m}:${s}`;
+            }, 1000);
+
+            this.triggerHaptic('medium');
+            this.showToast('🎙️ 낭독 녹음이 시작되었습니다! 대본을 소리 내어 읽어주세요.', 'info');
+        } catch (err) {
+            console.error('MediaRecorder start failed:', err);
+            this.showToast('녹음 시작 실패: ' + err.message, 'error');
+        }
+    }
+
+    stopRecitationRecording() {
+        if (this.recitationState.timerInterval) {
+            clearInterval(this.recitationState.timerInterval);
+            this.recitationState.timerInterval = null;
+        }
+
+        if (this.recitationState.mediaRecorder && this.recitationState.mediaRecorder.state === 'recording') {
+            try {
+                this.recitationState.mediaRecorder.stop();
+            } catch (e) {
+                console.error('Stop recorder error:', e);
+            }
+        }
+
+        if (this.recitationState.audioStream) {
+            try {
+                this.recitationState.audioStream.getTracks().forEach(t => t.stop());
+            } catch (e) {}
+                this.recitationState.audioStream = null;
+        }
+
+        if (this.reciteActiveControls) this.reciteActiveControls.classList.add('hidden');
+        if (this.reciteRecordingStatus) this.reciteRecordingStatus.classList.add('hidden');
+        this.triggerHaptic('success');
+    }
+
+    handleRecitationRecordingComplete() {
+        const blob = new Blob(this.recitationState.audioChunks, { type: this.recitationState.mimeType });
+        this.recitationState.audioBlob = blob;
+
+        if (this.recitationState.audioUrl) {
+            try { URL.revokeObjectURL(this.recitationState.audioUrl); } catch (e) {}
+        }
+        const audioUrl = URL.createObjectURL(blob);
+        this.recitationState.audioUrl = audioUrl;
+
+        const elapsedSec = Math.max(1, this.recitationState.elapsedSeconds || Math.round((Date.now() - (this.recitationState.startTime || Date.now())) / 1000));
+        const m = String(Math.floor(elapsedSec / 60)).padStart(2, '0');
+        const s = String(elapsedSec % 60).padStart(2, '0');
+        const durationFormatted = `${m}:${s}`;
+
+        const totalWords = (this.recitationState.sentences || []).reduce((acc, sent) => {
+            const text = (sent.english || '').trim();
+            return acc + (text ? text.split(/\s+/).length : 0);
+        }, 0);
+        const minutes = elapsedSec / 60;
+        const wpm = minutes > 0 ? Math.round(totalWords / minutes) : 0;
+        this.recitationState.wpm = wpm;
+
+        // UI State 3 (Results)
+        if (this.resSentenceCount) this.resSentenceCount.textContent = (this.recitationState.sentences || []).length;
+        if (this.resDurationStr) this.resDurationStr.textContent = durationFormatted;
+        if (this.resWpmBadge) this.resWpmBadge.textContent = `${wpm} WPM (${totalWords}단어)`;
+        if (this.resAudioTimeDisplay) this.resAudioTimeDisplay.textContent = durationFormatted;
+        if (this.recitationAudioPlayer) {
+            this.recitationAudioPlayer.src = audioUrl;
+            this.recitationAudioPlayer.load();
+        }
+
+        if (this.reciteIdleControls) this.reciteIdleControls.classList.add('hidden');
+        if (this.reciteActiveControls) this.reciteActiveControls.classList.add('hidden');
+        if (this.recitationResultPanel) {
+            this.recitationResultPanel.classList.remove('hidden');
+            this.recitationResultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        this.showToast('🎉 완독 녹음 완료! 아래에서 확인하고 카톡/커뮤니티에 인증하세요.', 'success');
+    }
+
+    restartRecitationRecording() {
+        if (this.recitationAudioPlayer) {
+            this.recitationAudioPlayer.pause();
+        }
+        if (this.recitationResultPanel) this.recitationResultPanel.classList.add('hidden');
+        if (this.reciteActiveControls) this.reciteActiveControls.classList.add('hidden');
+        if (this.reciteIdleControls) this.reciteIdleControls.classList.remove('hidden');
+        if (this.reciteRecordingStatus) this.reciteRecordingStatus.classList.add('hidden');
+        if (this.reciteLiveTimer) this.reciteLiveTimer.textContent = '00:00';
+        if (this.btnApplyStudyRecitation) {
+            this.btnApplyStudyRecitation.disabled = false;
+            this.btnApplyStudyRecitation.innerHTML = '<span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span><span>오늘 학습 기록에 낭독 완료 반영</span>';
+        }
+    }
+
+    getRecitationSummaryText() {
+        const todayStr = getTodayString().replace(/-/g, '.');
+        const count = (this.recitationState.sentences || []).length;
+        const sec = this.recitationState.elapsedSeconds || 0;
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        const wpm = this.recitationState.wpm || 0;
+
+        const previewCount = Math.min(count, 5);
+        const previews = (this.recitationState.sentences || []).slice(0, previewCount).map((item, idx) => {
+            return `${idx + 1}. ${item.english}\n   (${item.korean})`;
+        }).join('\n');
+
+        const restCount = count - previewCount;
+        const restStr = restCount > 0 ? `\n... 외 ${restCount}개 문장 완독! 🔥` : '';
+
+        return `📢 [TUK 영어 낭독 완독 인증]
+━━━━━━━━━━━━━━━
+📅 날짜: ${todayStr}
+🎯 완독 문장: ${count}개 문장
+⏱️ 낭독 시간: ${m}분 ${s}초 (${wpm} WPM)
+━━━━━━━━━━━━━━━
+[오늘 완독 문장]
+${previews}${restStr}
+
+#TUK영어 #영어낭독 #매일낭독인증 #습관형성`;
+    }
+
+    downloadRecitationAudio() {
+        if (!this.recitationState.audioBlob && !this.recitationState.audioUrl) {
+            this.showToast('저장할 녹음 파일이 없습니다.', 'warning');
+            return;
+        }
+
+        const ext = (this.recitationState.mimeType || '').includes('mp4') ? 'mp4' :
+                    ((this.recitationState.mimeType || '').includes('aac') ? 'aac' : 'webm');
+        const todayStr = getTodayString().replace(/-/g, '');
+        const count = (this.recitationState.sentences || []).length;
+        const filename = `TUK_낭독인증_${todayStr}_${count}문장.${ext}`;
+
+        const url = this.recitationState.audioUrl || URL.createObjectURL(this.recitationState.audioBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        this.showToast(`💾 오디오 파일 [${filename}]이 저장되었습니다!`, 'success');
+    }
+
+    async shareRecitationSession() {
+        if (!this.recitationState.audioBlob) {
+            this.showToast('공유할 녹음 파일이 없습니다.', 'warning');
+            return;
+        }
+
+        const ext = (this.recitationState.mimeType || '').includes('mp4') ? 'mp4' :
+                    ((this.recitationState.mimeType || '').includes('aac') ? 'aac' : 'webm');
+        const todayStr = getTodayString().replace(/-/g, '');
+        const count = (this.recitationState.sentences || []).length;
+        const filename = `TUK_낭독인증_${todayStr}_${count}문장.${ext}`;
+        const shareText = this.getRecitationSummaryText();
+
+        let audioFile = null;
+        try {
+            audioFile = new File([this.recitationState.audioBlob], filename, { type: this.recitationState.mimeType || 'audio/webm' });
+        } catch (e) {
+            console.warn('File constructor error:', e);
+        }
+
+        if (audioFile && navigator.canShare && navigator.canShare({ files: [audioFile] })) {
+            try {
+                await navigator.share({
+                    title: 'TUK 영어 낭독 완독 인증',
+                    text: shareText,
+                    files: [audioFile]
+                });
+                this.showToast('✨ 카톡 / 커뮤니티 공유가 완료되었습니다!', 'success');
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.warn('Navigator file share failed, fallback to copy+download:', err);
+            }
+        }
+
+        // Fallback for PC / unsupported browsers:
+        try {
+            await navigator.clipboard.writeText(shareText);
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = shareText;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        }
+
+        this.downloadRecitationAudio();
+        this.showToast('📋 인증 텍스트가 복사되었고 오디오가 저장되었습니다! 카톡방에 붙여넣기(Ctrl+V)하세요.', 'success');
+    }
+
+    applyRecitationToStudy() {
+        const list = this.recitationState.sentences || [];
+        if (list.length === 0) return;
+
+        const today = getTodayString();
+        let updatedCount = 0;
+
+        list.forEach(item => {
+            const found = this.sentences.find(s => s.id === item.id);
+            if (found) {
+                found.studyCount = (found.studyCount || 0) + 1;
+                found.lastStudiedAt = today;
+                if (!found.nextReviewDate || found.nextReviewDate <= today) {
+                    found.nextReviewDate = addDaysToDate(today, 1);
+                }
+                if (found.intervalStep === undefined || found.intervalStep === 0) {
+                    found.intervalStep = 1;
+                }
+                updatedCount++;
+            }
+        });
+
+        if (updatedCount > 0) {
+            this.saveState();
+            this.renderAll();
+        }
+
+        if (this.btnApplyStudyRecitation) {
+            this.btnApplyStudyRecitation.disabled = true;
+            this.btnApplyStudyRecitation.innerHTML = '<span class="material-symbols-outlined text-[16px] text-emerald-600">done_all</span><span>오늘 학습 기록에 반영 완료</span>';
+        }
+
+        this.triggerHaptic('success');
+        this.showToast(`✅ ${updatedCount}개 문장의 낭독 학습이 오늘 기록에 반영되었습니다!`, 'success');
+    }
 }
 
 // Initialize Application safely regardless of load timing

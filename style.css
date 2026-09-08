@@ -440,7 +440,7 @@ body {
     inset: 0 !important;
     justify-content: center !important;
     align-items: center !important;
-    z-index: 100 !important;
+    z-index: 100000 !important;
 }
 
 /* Pulse badge animation */
